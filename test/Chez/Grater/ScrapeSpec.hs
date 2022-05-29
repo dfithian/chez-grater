@@ -1,17 +1,17 @@
-module Cheez.ScrapeSpec where
+module Chez.Grater.ScrapeSpec where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.ParsedIngredients
+import Chez.Grater.ParsedIngredients
   ( allRecipesIngredients, allRecipesSteps, bettyCrockerIngredients, bettyCrockerSteps
   , cafeDelitesIngredients, cafeDelitesSteps, eatingWellIngredients, eatingWellSteps
   , foodIngredients, foodNetworkIngredients, foodNetworkSteps, foodSteps, pillsburyIngredients
   , pillsburySteps, rachelMansfieldIngredients, rachelMansfieldSteps, sallysBakingIngredients
   , sallysBakingSteps, tasteOfHomeIngredients, tasteOfHomeSteps
   )
-import Cheez.Scraper.Types (ScrapedRecipe(..))
-import Cheez.TestEnv (Env(..))
-import Cheez.Types
+import Chez.Grater.Scraper.Types (ScrapedRecipe(..))
+import Chez.Grater.TestEnv (Env(..))
+import Chez.Grater.Types
   ( Ingredient(..), IngredientName(..), Quantity(..), RecipeName(..), Step(..), Unit(..)
   )
 import Control.Monad (when)
@@ -26,7 +26,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
 
 -- the module being tested
-import Cheez.Scrape
+import Chez.Grater.Scrape
 
 data TestCfg = TestCfg
   { requireOneQuantityUnit :: Bool

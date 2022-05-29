@@ -1,14 +1,16 @@
-module Cheez.Scrape where
+module Chez.Grater.Scrape where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.Parser (parseIngredients, parseSteps)
-import Cheez.Scraper.Site (allIngredientScrapers, allStepScrapers, ingredientScrapers, stepScrapers)
-import Cheez.Scraper.Types
+import Chez.Grater.Parser (parseIngredients, parseSteps)
+import Chez.Grater.Scraper.Site
+  ( allIngredientScrapers, allStepScrapers, ingredientScrapers, stepScrapers
+  )
+import Chez.Grater.Scraper.Types
   ( IngredientScraper(..), ScrapeError(..), ScrapeInfo(..), ScrapedInfo(..), ScrapedRecipe(..)
   , SiteName(..), StepScraper(..), title
   )
-import Cheez.Types (RecipeName(..))
+import Chez.Grater.Types (RecipeName(..))
 import Network.HTTP.Client (Manager)
 import Network.URI (URI, uriAuthority, uriRegName)
 import qualified Data.HashMap.Strict as HashMap

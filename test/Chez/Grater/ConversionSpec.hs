@@ -1,20 +1,20 @@
-module Cheez.ConversionSpec where
+module Chez.Grater.ConversionSpec where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.Combinable (Constant(..))
-import Cheez.ParsedIngredients
+import Chez.Grater.Combinable (Constant(..))
+import Chez.Grater.ParsedIngredients
   ( allParsedIngredients, pureIngredient, pureIngredientName, pureIngredientNoQuantity
   , pureIngredientNoUnit
   )
-import Cheez.Types (Unit(..), cup, ounce, pinch, tablespoon, teaspoon, whole)
+import Chez.Grater.Types (Unit(..), cup, ounce, pinch, tablespoon, teaspoon, whole)
 import Data.Monoid (Sum(..))
 import Test.Hspec (Spec, describe, it, shouldBe, shouldMatchList)
 import Test.QuickCheck (forAll, shuffle)
 import qualified Data.Map.Strict as Map
 
 -- the module being tested
-import Cheez.Conversion
+import Chez.Grater.Conversion
 
 allUnits :: [Unit]
 allUnits = [ounce, cup, tablespoon, teaspoon, pinch, Unit "none", whole]

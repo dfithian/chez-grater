@@ -1,6 +1,6 @@
-module Cheez.TestEnv where
+module Chez.Grater.TestEnv where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
 import Network.HTTP.Client (Manager, managerModifyRequest, requestHeaders)
 import Network.HTTP.Client.TLS (newTlsManagerWith, tlsManagerSettings)

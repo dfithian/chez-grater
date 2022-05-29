@@ -1,9 +1,9 @@
-module Cheez.Parser where
+module Chez.Grater.Parser where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.Scraper.Types (UnparsedIngredient(..), UnparsedStep(..))
-import Cheez.Types
+import Chez.Grater.Scraper.Types (UnparsedIngredient(..), UnparsedStep(..))
+import Chez.Grater.Types
   ( Ingredient(..), IngredientName(..), Quantity(..), RawIngredient(..), RawQuantity(..)
   , RawUnit(..), Step(..), Unit(..), Ingredient, box, cup, gram, liter, milligram, milliliter, ounce
   , pinch, pound, splash, sprinkle, tablespoon, teaspoon, whole

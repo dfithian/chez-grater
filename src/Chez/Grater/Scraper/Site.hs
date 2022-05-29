@@ -1,8 +1,8 @@
-module Cheez.Scraper.Site where
+module Chez.Grater.Scraper.Site where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.Scraper.Types
+import Chez.Grater.Scraper.Types
   ( IngredientScraper(..), ScrapeInfo(..), ScrapeName(..), ScrapeVersion(..), SiteName(..)
   , StepScraper(..), UnparsedIngredient(..), UnparsedStep(..), inception
   )

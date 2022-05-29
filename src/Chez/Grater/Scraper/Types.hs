@@ -1,8 +1,8 @@
-module Cheez.Scraper.Types where
+module Chez.Grater.Scraper.Types where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.Types (RecipeName(..), Ingredient, Step)
+import Chez.Grater.Types (RecipeName(..), Ingredient, Step)
 import Data.Hashable (Hashable)
 import Data.String (IsString)
 import GHC.Generics (Generic)

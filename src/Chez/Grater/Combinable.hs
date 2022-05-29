@@ -1,8 +1,8 @@
-module Cheez.Combinable where
+module Chez.Grater.Combinable where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.Types (Ingredient(..), IngredientName, Quantity, Unit)
+import Chez.Grater.Types (Ingredient(..), IngredientName, Quantity, Unit)
 
 newtype Constant a = Constant { getConstant :: a }
   deriving (Eq, Ord, Show)

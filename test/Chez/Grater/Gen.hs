@@ -1,12 +1,12 @@
-module Cheez.Gen where
+module Chez.Grater.Gen where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
 import Test.QuickCheck (Gen, arbitrary, elements, oneof)
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text as Text
 
-import Cheez.Types
+import Chez.Grater.Types
 
 arbitraryAlphaNum :: Gen Char
 arbitraryAlphaNum = elements $ ['a'..'z'] <> ['A'..'Z'] <> ['0'..'9']

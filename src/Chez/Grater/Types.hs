@@ -1,9 +1,9 @@
-module Cheez.Types where
+module Chez.Grater.Types where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.CI.Orphans ()
-import Cheez.Json (jsonOptions)
+import Chez.Grater.CI.Orphans ()
+import Chez.Grater.Json (jsonOptions)
 import Data.Aeson (FromJSON, FromJSONKey, ToJSON, ToJSONKey)
 import Data.Aeson.TH (deriveJSON)
 import GHC.Generics (Generic)

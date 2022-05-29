@@ -1,15 +1,15 @@
 import Prelude
 
-import Cheez.TestEnv (loadEnv)
+import Chez.Grater.TestEnv (loadEnv)
 import Test.Hspec (hspec)
-import qualified Cheez.ConversionSpec
-import qualified Cheez.ParserSpec
-import qualified Cheez.ScrapeSpec
+import qualified Chez.Grater.ConversionSpec
+import qualified Chez.Grater.ParserSpec
+import qualified Chez.Grater.ScrapeSpec
 
 main :: IO ()
 main = do
   env <- loadEnv
   hspec $ do
-    Cheez.ConversionSpec.spec
-    Cheez.ParserSpec.spec
-    Cheez.ScrapeSpec.spec env
+    Chez.Grater.ConversionSpec.spec
+    Chez.Grater.ParserSpec.spec
+    Chez.Grater.ScrapeSpec.spec env

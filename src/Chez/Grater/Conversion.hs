@@ -1,15 +1,15 @@
-module Cheez.Conversion where
+module Chez.Grater.Conversion where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.Combinable (Constant(..), Combinable)
-import Cheez.Types
+import Chez.Grater.Combinable (Constant(..), Combinable)
+import Chez.Grater.Types
   ( Ingredient(..), OrderedIngredient(..), Quantity(..), ReadableFraction(..)
   , ReadableIngredient(..), ReadableQuantity(..), ReadableUnit(..), Unit(..), cup, gram, liter
   , milligram, milliliter, ounce, pinch, tablespoon, teaspoon
   )
 import Data.Monoid (Sum(..))
-import qualified Cheez.Combinable as C
+import qualified Chez.Grater.Combinable as C
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 

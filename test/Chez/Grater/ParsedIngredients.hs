@@ -1,8 +1,8 @@
-module Cheez.ParsedIngredients where
+module Chez.Grater.ParsedIngredients where
 
-import Cheez.Prelude
+import Chez.Grater.Prelude
 
-import Cheez.Types (Ingredient(..), IngredientName(..), Quantity(..), Step(..), Unit(..))
+import Chez.Grater.Types (Ingredient(..), IngredientName(..), Quantity(..), Step(..), Unit(..))
 import qualified Data.CaseInsensitive as CI
 
 allParsedIngredients :: [[Ingredient]]

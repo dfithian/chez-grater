@@ -11,9 +11,9 @@ jobs:
         with:
           path: |
             dist-newstyle
-          key: cabal-${{ hashFiles('cheez.cabal') }}
+          key: cabal-${{ hashFiles('chez-grater.cabal') }}
           restore-keys: |
-            cabal-${{ hashFiles('cheez.cabal') }}
+            cabal-${{ hashFiles('chez-grater.cabal') }}
             cabal-
       - uses: haskell/actions/setup@v1
         with:
