@@ -1,0 +1,24 @@
+on:
+  push: {}
+  schedule:
+    - cron: "0 5 * * *"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.stack
+            .stack-work
+          key: stack-${{ hashFiles('stack.yaml') }}
+          restore-keys: |
+            stack-${{ hashFiles('stack.yaml') }}
+            stack-
+      - uses: haskell/actions/setup@v1
+        with:
+          ghc-version: '8.10.4'
+          enable-stack: true
+          stack-version: '2.7.3'
+      - run: stack test
