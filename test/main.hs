@@ -4,7 +4,7 @@ import Chez.Grater.TestEnv (loadEnv)
 import Test.Hspec (hspec)
 import qualified Chez.Grater.ConversionSpec
 import qualified Chez.Grater.ParserSpec
-import qualified Chez.Grater.ScrapeSpec
+import qualified Chez.GraterSpec
 
 main :: IO ()
 main = do
@@ -12,4 +12,4 @@ main = do
   hspec $ do
     Chez.Grater.ConversionSpec.spec
     Chez.Grater.ParserSpec.spec
-    Chez.Grater.ScrapeSpec.spec env
+    Chez.GraterSpec.spec env

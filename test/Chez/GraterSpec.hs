@@ -1,4 +1,4 @@
-module Chez.Grater.ScrapeSpec where
+module Chez.GraterSpec where
 
 import Chez.Grater.Prelude
 
@@ -26,7 +26,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
 
 -- the module being tested
-import Chez.Grater.Scrape
+import Chez.Grater
 
 data TestCfg = TestCfg
   { requireOneQuantityUnit :: Bool

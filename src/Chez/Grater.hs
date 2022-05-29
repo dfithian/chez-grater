@@ -1,4 +1,4 @@
-module Chez.Grater.Scrape where
+module Chez.Grater where
 
 import Chez.Grater.Prelude
 

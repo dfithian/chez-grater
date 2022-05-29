@@ -51,13 +51,13 @@ common ghc-options
 library
   import: options, ghc-options
   exposed-modules:
+      Chez.Grater
       Chez.Grater.Combinable
       Chez.Grater.Conversion
       Chez.Grater.CI.Orphans
       Chez.Grater.Json
       Chez.Grater.Parser
       Chez.Grater.Prelude
-      Chez.Grater.Scrape
       Chez.Grater.Scraper.Site
       Chez.Grater.Scraper.Types
       Chez.Grater.Types
@@ -89,8 +89,8 @@ test-suite tests
       Chez.Grater.Gen
       Chez.Grater.ParsedIngredients
       Chez.Grater.ParserSpec
-      Chez.Grater.ScrapeSpec
       Chez.Grater.TestEnv
+      Chez.GraterSpec
       Paths_chez_grater
   hs-source-dirs:
       test
