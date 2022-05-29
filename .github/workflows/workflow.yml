@@ -10,15 +10,13 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: |
-            ~/.stack
-            .stack-work
-          key: stack-${{ hashFiles('stack.yaml') }}
+            dist-newstyle
+          key: cabal-${{ hashFiles('cheez.cabal') }}
           restore-keys: |
-            stack-${{ hashFiles('stack.yaml') }}
-            stack-
+            cabal-${{ hashFiles('cheez.cabal') }}
+            cabal-
       - uses: haskell/actions/setup@v1
         with:
-          ghc-version: '8.10.4'
-          enable-stack: true
-          stack-version: '2.7.3'
-      - run: stack test
+          ghc-version: '8.10.7'
+          enable-stack: false
+      - run: cabal v2-test --test-log /dev/stdout --test-show-details always
