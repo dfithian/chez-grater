@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-module Chez.Grater.CI.Orphans where
+module Chez.Grater.Internal.CI.Orphans where
 
-import Chez.Grater.Prelude
+import Chez.Grater.Internal.Prelude
 
 import Data.Aeson
   ( FromJSON, FromJSONKey, ToJSON, ToJSONKey, fromJSONKey, fromJSONKeyList, parseJSON, toJSON

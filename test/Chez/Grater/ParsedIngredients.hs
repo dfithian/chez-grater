@@ -1,8 +1,10 @@
 module Chez.Grater.ParsedIngredients where
 
-import Chez.Grater.Prelude
+import Chez.Grater.Internal.Prelude
 
-import Chez.Grater.Types (Ingredient(..), IngredientName(..), Quantity(..), Step(..), Unit(..))
+import Chez.Grater.Types
+  ( Ingredient(..), IngredientName(..), Step(..), Unit(..), emptyQuantity, mkQuantity
+  )
 import qualified Data.CaseInsensitive as CI
 
 allParsedIngredients :: [[Ingredient]]
@@ -17,29 +19,29 @@ allParsedIngredients =
 pureIngredient :: Double -> Text -> Text -> Ingredient
 pureIngredient q u i = Ingredient
   { ingredientName = IngredientName $ CI.mk i
-  , ingredientQuantity = Quantity q
-  , ingredientUnit = Unit $ CI.mk u
+  , ingredientQuantity = mkQuantity q
+  , ingredientUnit = Just . Unit . CI.mk $ u
   }
 
 pureIngredientNoQuantity :: Text -> Text -> Ingredient
 pureIngredientNoQuantity u i = Ingredient
   { ingredientName = IngredientName $ CI.mk i
-  , ingredientQuantity = QuantityMissing
-  , ingredientUnit = Unit $ CI.mk u
+  , ingredientQuantity = emptyQuantity
+  , ingredientUnit = Just . Unit . CI.mk $ u
   }
 
 pureIngredientNoUnit :: Double -> Text -> Ingredient
 pureIngredientNoUnit q i = Ingredient
   { ingredientName = IngredientName $ CI.mk i
-  , ingredientQuantity = Quantity q
-  , ingredientUnit = UnitMissing
+  , ingredientQuantity = mkQuantity q
+  , ingredientUnit = Nothing
   }
 
 pureIngredientName :: Text -> Ingredient
 pureIngredientName i = Ingredient
   { ingredientName = IngredientName $ CI.mk i
-  , ingredientQuantity = QuantityMissing
-  , ingredientUnit = UnitMissing
+  , ingredientQuantity = emptyQuantity
+  , ingredientUnit = Nothing
   }
 
 allRecipesIngredients :: [Ingredient]

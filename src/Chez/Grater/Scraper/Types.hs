@@ -1,8 +1,7 @@
 module Chez.Grater.Scraper.Types where
 
-import Chez.Grater.Prelude
+import Chez.Grater.Internal.Prelude
 
-import Chez.Grater.Types (RecipeName(..), Ingredient, Step)
 import Data.Hashable (Hashable)
 import Data.String (IsString)
 import GHC.Generics (Generic)
@@ -10,57 +9,67 @@ import Text.HTML.Scalpel (Scraper)
 import qualified Data.Text as Text
 import qualified Text.HTML.Scalpel as Scalpel
 
-data ScrapedInfo
-  = ScrapedInfoIngredient (ScrapeInfo Ingredient)
-  | ScrapedInfoIngredientStep (ScrapeInfo Ingredient) (ScrapeInfo Step)
+-- |Wrapper for scraper metadata.
+data ScrapeMetaWrapper
+  = ScrapeMetaWrapperIngredient (ScrapeMeta ScrapedIngredient)
+  | ScrapeMetaWrapperIngredientAndStep (ScrapeMeta ScrapedIngredient) (ScrapeMeta ScrapedStep)
   deriving (Eq, Ord, Show)
 
+-- |Name of a scraper.
 newtype ScrapeName = ScrapeName { unScrapeName :: Text }
   deriving (Eq, Ord, Show, Generic)
 
+-- |Version of a scraper.
 newtype ScrapeVersion = ScrapeVersion { unScrapeVersion :: Int }
   deriving (Eq, Ord, Show, Generic)
 
-data ScrapeInfo a = ScrapeInfo
-  { scrapeInfoName    :: ScrapeName
-  , scrapeInfoVersion :: ScrapeVersion
+-- |Metadata for a scraper.
+data ScrapeMeta a = ScrapeMeta
+  { scrapeMetaName    :: ScrapeName
+  , scrapeMetaVersion :: ScrapeVersion
   }
   deriving (Eq, Ord, Show, Generic)
 
-data ScrapedRecipe = ScrapedRecipe
-  { scrapedRecipeName        :: RecipeName
-  , scrapedRecipeIngredients :: [Ingredient]
-  , scrapedRecipeSteps       :: [Step]
-  } deriving (Eq, Show, Generic)
+-- |The `<title>` element of the HTML.
+newtype ScrapedRecipeName = ScrapedRecipeName { unScrapedRecipeName :: Text }
+  deriving (Eq, Show, Generic)
+
+-- |Unparsed ingredient.
+data ScrapedIngredient = ScrapedIngredient Text
+  deriving (Eq, Ord, Show)
+
+data ScrapedStep = ScrapedStep Text
+  deriving (Eq, Ord, Show)
 
 data IngredientScraper = IngredientScraper
-  { ingredientScraperInfo :: ScrapeInfo Ingredient
+  { ingredientScraperMeta :: ScrapeMeta ScrapedIngredient
+  -- ^Metadata about the scraper.
   , ingredientScraperTest :: Scraper Text Bool
-  , ingredientScraperRun  :: Scraper Text [UnparsedIngredient]
+  -- ^A test on the HTML to see if this scraper should work.
+  , ingredientScraperRun  :: Scraper Text [ScrapedIngredient]
+  -- ^Run the scraper!
   }
 
 data StepScraper = StepScraper
-  { stepScraperInfo :: ScrapeInfo Step
+  { stepScraperMeta :: ScrapeMeta ScrapedStep
+  -- ^Metadata about the scraper.
   , stepScraperTest :: Scraper Text Bool
-  , stepScraperRun  :: Scraper Text [UnparsedStep]
+  -- ^A test on the HTML to see if this scraper should work.
+  , stepScraperRun  :: Scraper Text [ScrapedStep]
+  -- ^Run the scraper!
   }
 
+-- |Domain like `halfbakedharvest.com`.
 newtype SiteName = SiteName { unSiteName :: Text }
   deriving (Eq, Ord, Show, IsString, Hashable)
-
-data UnparsedIngredient = UnparsedIngredientRaw Text
-  deriving (Eq, Ord, Show)
-
-data UnparsedStep = UnparsedStepRaw Text
-  deriving (Eq, Ord, Show)
 
 data ScrapeError = ScrapeError Text
   deriving (Eq, Show)
 
 instance Exception ScrapeError
 
-title :: Scraper Text RecipeName
-title = RecipeName . Text.strip <$> Scalpel.text "title"
+title :: Scraper Text ScrapedRecipeName
+title = ScrapedRecipeName . Text.strip <$> Scalpel.text "title"
 
 inception :: ScrapeVersion
 inception = ScrapeVersion 1

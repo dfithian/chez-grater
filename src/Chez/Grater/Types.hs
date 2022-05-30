@@ -1,16 +1,12 @@
 module Chez.Grater.Types where
 
-import Chez.Grater.Prelude
+import Chez.Grater.Internal.Prelude
 
-import Chez.Grater.CI.Orphans ()
-import Chez.Grater.Json (jsonOptions)
-import Data.Aeson (FromJSON, FromJSONKey, ToJSON, ToJSONKey)
+import Chez.Grater.Internal.CI.Orphans ()
+import Chez.Grater.Internal.Json (jsonOptions)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Aeson.TH (deriveJSON)
 import GHC.Generics (Generic)
-import Web.HttpApiData (FromHttpApiData, ToHttpApiData)
-
-newtype UserId = UserId { unUserId :: Int }
-  deriving (Eq, Ord, Show, FromJSON, FromJSONKey, ToJSON, ToJSONKey, FromHttpApiData, ToHttpApiData)
 
 newtype IngredientName = IngredientName { unIngredientName :: CI Text }
   deriving (Eq, Ord, Show, Generic, FromJSON, ToJSON)
@@ -18,84 +14,34 @@ newtype IngredientName = IngredientName { unIngredientName :: CI Text }
 newtype RecipeName = RecipeName { unRecipeName :: Text }
   deriving (Eq, Ord, Show, Generic, FromJSON, ToJSON)
 
-data RawQuantity
-  = RawQuantity Double
-  | RawQuantityWord (CI Text)
-  | RawQuantityMissing
-  deriving (Eq, Ord, Show)
-
-data Quantity
-  = Quantity Double
-  | QuantityMissing
-  deriving (Eq, Ord, Show, Generic)
-
-quantityToValue :: Quantity -> Double
-quantityToValue = \case
-  Quantity x -> x
-  QuantityMissing -> 1
-
-newtype RecipeLink = RecipeLink { unRecipeLink :: Text }
-  deriving (Eq, Ord, Show, FromJSON, ToJSON)
-
-data RawUnit
-  = RawUnit (CI Text)
-  | RawUnitMissing
-  deriving (Eq, Ord, Show)
-
-data Unit
-  = Unit (CI Text)
-  | UnitMissing
-  deriving (Eq, Ord, Show, Generic)
-
-data ReadableFraction = ReadableFraction
-  { readableFractionNumerator   :: Int
-  , readableFractionDenominator :: Int
+data Fraction = Fraction
+  { fractionNumerator   :: Int
+  , fractionDenominator :: Int
   }
   deriving (Eq, Show, Ord)
 
-data ReadableQuantity = ReadableQuantity
-  { readableQuantityWhole    :: Maybe Int
-  , readableQuantityFraction :: Maybe ReadableFraction
+data Quantity = Quantity
+  { quantityWhole    :: Maybe Int
+  , quantityFraction :: Maybe Fraction
   }
   deriving (Eq, Show, Ord)
 
-newtype ReadableUnit = ReadableUnit { unReadableUnit :: CI Text }
+newtype Unit = Unit { unUnit :: CI Text }
   deriving (Eq, Ord, Show, FromJSON, ToJSON)
-
-data Ingredient = Ingredient
-  { ingredientName     :: IngredientName
-  , ingredientQuantity :: Quantity
-  , ingredientUnit     :: Unit
-  }
-  deriving (Eq, Ord, Show, Generic)
-
-data OrderedIngredient = OrderedIngredient
-  { orderedIngredientIngredient :: Ingredient
-  , orderedIngredientOrder      :: Int
-  }
-  deriving (Eq, Ord, Show)
-
-data RawIngredient = RawIngredient
-  { rawIngredientName     :: IngredientName
-  , rawIngredientQuantity :: RawQuantity
-  , rawIngredientUnit     :: RawUnit
-  }
-  deriving (Eq, Ord, Show)
 
 newtype Step = Step { unStep :: Text }
   deriving (Eq, Ord, Show, Generic, FromJSON, ToJSON)
 
-data ReadableIngredient = ReadableIngredient
-  { readableIngredientName     :: IngredientName
-  , readableIngredientQuantity :: ReadableQuantity
-  , readableIngredientUnit     :: Maybe ReadableUnit
-  , readableIngredientOrder    :: Int
+data Ingredient = Ingredient
+  { ingredientName     :: IngredientName
+  , ingredientQuantity :: Quantity
+  , ingredientUnit     :: Maybe Unit
   }
   deriving (Eq, Ord, Show)
 
-deriveJSON (jsonOptions "readableFraction") ''ReadableFraction
-deriveJSON (jsonOptions "readableQuantity") ''ReadableQuantity
-deriveJSON (jsonOptions "readableIngredient") ''ReadableIngredient
+deriveJSON (jsonOptions "fraction") ''Fraction
+deriveJSON (jsonOptions "quantity") ''Quantity
+deriveJSON (jsonOptions "Ingredient") ''Ingredient
 
 pinch, teaspoon, tablespoon, cup, ounce, box, pound, splash, sprinkle, whole
   , milliliter, liter, milligram, gram :: Unit
@@ -114,29 +60,41 @@ liter = Unit "l"
 milligram = Unit "mg"
 gram = Unit "g"
 
-instance Num Quantity where
-  QuantityMissing + QuantityMissing = QuantityMissing
-  x + y = Quantity $ quantityToValue x + quantityToValue y
+emptyQuantity :: Quantity
+emptyQuantity = Quantity Nothing Nothing
 
-  QuantityMissing * QuantityMissing = QuantityMissing
-  x * y = Quantity $ quantityToValue x * quantityToValue y
+mkQuantity :: Double -> Quantity
+mkQuantity q = case splitQuantity q of
+  Nothing -> Quantity Nothing Nothing
+  Just (w, d) ->
+    case (w == 0, find (\((lo, hi), _) -> lo <= d && d <= hi) knownQuantities) of
+      (False, Just (_, (numerator, denominator))) -> Quantity (Just w) (Just (Fraction numerator denominator))
+      (True, Just (_, (numerator, denominator))) -> Quantity Nothing (Just (Fraction numerator denominator))
+      (False, Nothing) -> Quantity (Just w) Nothing
+      (True, Nothing) -> Quantity Nothing Nothing
 
-  abs = \case
-    Quantity x -> Quantity $ abs x
-    QuantityMissing -> QuantityMissing
+  where
 
-  signum = \case
-    Quantity x -> Quantity $ signum x
-    QuantityMissing -> QuantityMissing
+    quantityPrecision :: Double
+    quantityPrecision = 0.01
 
-  fromInteger = Quantity . fromInteger
+    quarter = 0.25
+    third = 1 / 3
+    half = 0.5
+    twoThird = 2 / 3
+    threeQuarter = 0.75
 
-  negate = \case
-    Quantity x -> Quantity $ negate x
-    QuantityMissing -> QuantityMissing
+    knownQuantities :: [((Double, Double), (Int, Int))]
+    knownQuantities =
+      [ ((quarter - quantityPrecision, quarter + quantityPrecision), (1, 4))
+      , ((third - quantityPrecision, third + quantityPrecision), (1, 3))
+      , ((half - quantityPrecision, half + quantityPrecision), (1, 2))
+      , ((twoThird - quantityPrecision, twoThird + quantityPrecision), (2, 3))
+      , ((threeQuarter - quantityPrecision, threeQuarter + quantityPrecision), (3, 4))
+      ]
 
-instance Fractional Quantity where
-  fromRational = Quantity . fromRational
-
-  QuantityMissing / QuantityMissing = QuantityMissing
-  x / y = Quantity $ quantityToValue x / quantityToValue y
+    splitQuantity :: Double -> Maybe (Int, Double)
+    splitQuantity q2 =
+      case abs (fromIntegral (round q2 :: Int) - q2) < quantityPrecision of
+        True -> Just (round q2, 0.0)
+        False -> let w = truncate q2 in Just (w, q2 - fromIntegral w)

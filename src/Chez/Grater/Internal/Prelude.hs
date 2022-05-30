@@ -1,4 +1,4 @@
-module Chez.Grater.Prelude
+module Chez.Grater.Internal.Prelude
   ( module Prelude
   , module Control.Applicative
   , module Control.Arrow

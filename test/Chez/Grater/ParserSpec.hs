@@ -1,12 +1,14 @@
 module Chez.Grater.ParserSpec where
 
-import Chez.Grater.Prelude
+import Chez.Grater.Internal.Prelude
 
 import Chez.Grater.ParsedIngredients
   ( allRecipesIngredients, foodNetworkIngredients, pillsburyIngredients, rachelMansfieldIngredients
   , tasteOfHomeIngredients
   )
-import Chez.Grater.Types (IngredientName(..), RawIngredient(..), RawQuantity(..), RawUnit(..))
+import Chez.Grater.Parser.Types
+  ( ParsedIngredient(..), ParsedIngredientName(..), ParsedQuantity(..), ParsedUnit(..)
+  )
 import Data.FileEmbed (embedFile)
 import System.FilePath.TH (fileRelativeToAbsoluteStr)
 import Test.Hspec (Expectation, Spec, describe, it, shouldBe, shouldMatchList)
@@ -23,19 +25,19 @@ parseStrict expected parser input = Atto.parseOnly parser input `shouldBe` Right
 spec :: Spec
 spec = describe "Parser" $ do
   describe "Examples" $ do
-    it "can parse a unit" $ parseStrict (RawUnit "ounces") unitP " ounces "
-    it "can parse a fraction" $ parseStrict (RawQuantity $ 1 / 3) quantityP "1/3"
-    it "can parse an improper fraction" $ parseStrict (RawQuantity 1.5) quantityP "1-1/2"
-    it "can parse an improper fraction with spaces" $ parseStrict (RawQuantity 1.5) quantityP "1 1/2"
-    it "can parse a range" $ parseStrict (RawQuantity 2.5) quantityP "2-3"
-    it "can parse a decimal" $ parseStrict (RawQuantity 0.25) quantityP "0.25"
-    it "can parse a word" $ parseStrict (RawQuantityWord "half") quantityP "\nhalf\n"
-    it "can parse an ingredient name" $ parseStrict (IngredientName "chicken") nameP " chicken"
-    it "can parse \"chicken\"" $ parseStrict (RawIngredient (IngredientName "chicken") RawQuantityMissing RawUnitMissing) ingredientP "chicken"
-    it "can parse \"one chicken\"" $ parseStrict (RawIngredient (IngredientName "chicken") (RawQuantityWord "one") RawUnitMissing) ingredientP "one chicken"
-    it "can parse \"whole chicken\"" $ parseStrict (RawIngredient (IngredientName "chicken") RawQuantityMissing (RawUnit "whole")) ingredientP "whole chicken"
-    it "can parse \"one whole chicken\"" $ parseStrict (RawIngredient (IngredientName "chicken") (RawQuantityWord "one") (RawUnit "whole")) ingredientP "one whole chicken"
-    it "can parse \"1/4 cup broth\"" $ parseStrict (RawIngredient (IngredientName "broth") (RawQuantity 0.25) (RawUnit "cup")) ingredientP "1/4\ncup\nbroth"
+    it "can parse a unit" $ parseStrict (ParsedUnit "ounces") unitP " ounces "
+    it "can parse a fraction" $ parseStrict (ParsedQuantity $ 1 / 3) quantityP "1/3"
+    it "can parse an improper fraction" $ parseStrict (ParsedQuantity 1.5) quantityP "1-1/2"
+    it "can parse an improper fraction with spaces" $ parseStrict (ParsedQuantity 1.5) quantityP "1 1/2"
+    it "can parse a range" $ parseStrict (ParsedQuantity 2.5) quantityP "2-3"
+    it "can parse a decimal" $ parseStrict (ParsedQuantity 0.25) quantityP "0.25"
+    it "can parse a word" $ parseStrict (ParsedQuantityWord "half") quantityP "\nhalf\n"
+    it "can parse an ingredient name" $ parseStrict (ParsedIngredientName "chicken") nameP " chicken"
+    it "can parse \"chicken\"" $ parseStrict (ParsedIngredient (ParsedIngredientName "chicken") ParsedQuantityMissing ParsedUnitMissing) ingredientP "chicken"
+    it "can parse \"one chicken\"" $ parseStrict (ParsedIngredient (ParsedIngredientName "chicken") (ParsedQuantityWord "one") ParsedUnitMissing) ingredientP "one chicken"
+    it "can parse \"whole chicken\"" $ parseStrict (ParsedIngredient (ParsedIngredientName "chicken") ParsedQuantityMissing (ParsedUnit "whole")) ingredientP "whole chicken"
+    it "can parse \"one whole chicken\"" $ parseStrict (ParsedIngredient (ParsedIngredientName "chicken") (ParsedQuantityWord "one") (ParsedUnit "whole")) ingredientP "one whole chicken"
+    it "can parse \"1/4 cup broth\"" $ parseStrict (ParsedIngredient (ParsedIngredientName "broth") (ParsedQuantity 0.25) (ParsedUnit "cup")) ingredientP "1/4\ncup\nbroth"
 
   describe "Paste" $ do
     it "can parse allrecipes" $ do

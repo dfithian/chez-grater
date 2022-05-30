@@ -1,78 +1,28 @@
 module Chez.Grater where
 
-import Chez.Grater.Prelude
+import Chez.Grater.Internal.Prelude
 
-import Chez.Grater.Parser (parseIngredients, parseSteps)
-import Chez.Grater.Scraper.Site
-  ( allIngredientScrapers, allStepScrapers, ingredientScrapers, stepScrapers
-  )
+import Chez.Grater.Parser (parseScrapedIngredients, parseScrapedSteps)
+import Chez.Grater.Scraper (scrape)
 import Chez.Grater.Scraper.Types
-  ( IngredientScraper(..), ScrapeError(..), ScrapeInfo(..), ScrapedInfo(..), ScrapedRecipe(..)
-  , SiteName(..), StepScraper(..), title
+  ( ScrapedRecipeName(..), ScrapeMetaWrapper, ScrapedIngredient, ScrapedStep
   )
-import Chez.Grater.Types (RecipeName(..))
+import Chez.Grater.Types (RecipeName(..), Ingredient, Step)
+import Control.Monad ((>=>))
 import Network.HTTP.Client (Manager)
-import Network.URI (URI, uriAuthority, uriRegName)
-import qualified Data.HashMap.Strict as HashMap
-import qualified Data.Text as Text
-import qualified Text.HTML.Scalpel as Scalpel
+import Network.URI (URI)
 
-scrapeUrl :: Manager -> URI -> IO (ScrapedRecipe, ScrapedInfo)
-scrapeUrl manager uri = do
-  let cfg = Scalpel.Config Scalpel.defaultDecoder (Just manager)
-  tags <- Scalpel.fetchTagsWithConfig cfg (show uri)
-  let domainMay = SiteName . Text.replace "www." "" . Text.pack . uriRegName <$> uriAuthority uri
-      name = fromMaybe (RecipeName "Untitled") $ Scalpel.scrape title tags
-      runIngredientParser rawIngredients =
-        parseIngredients rawIngredients >>= \case
-          [] -> Left "No ingredients found"
-          xs -> Right xs
-      runStepParser rawSteps =
-        parseSteps rawSteps >>= \case
-          [] -> Left "No steps found"
-          xs -> Right xs
+-- |Scrape a URL without parsing it.
+scrapeUrl :: Manager -> URI -> IO (ScrapedRecipeName, [ScrapedIngredient], [ScrapedStep], ScrapeMetaWrapper)
+scrapeUrl = scrape id Right Right
 
-      runScraper :: forall a b. ([a] -> Either Text [b]) -> Scalpel.Scraper Text [a] -> Maybe [b]
-      runScraper parser scraper = either (const Nothing) Just . parser =<< Scalpel.scrape scraper tags
-
-      goIngredient IngredientScraper {..} = case Scalpel.scrape ingredientScraperTest tags of
-        Just True -> (,ingredientScraperInfo) <$> runScraper runIngredientParser ingredientScraperRun
-        _ -> Nothing
-      goStep StepScraper {..} = case Scalpel.scrape stepScraperTest tags of
-        Just True -> (,stepScraperInfo) <$> runScraper runStepParser stepScraperRun
-        _ -> Nothing
-  (ingredients, ingredientInfo) <- case flip HashMap.lookup ingredientScrapers =<< domainMay of
-    Just IngredientScraper {..} -> maybe (throwIO $ ScrapeError "Failed to scrape known URL") (pure . (,ingredientScraperInfo)) $
-      runScraper runIngredientParser ingredientScraperRun
-    Nothing -> maybe (throwIO $ ScrapeError "Failed to scrape URL from defaults") pure
-     . lastMay
-     . sortOn (length . fst)
-     . mapMaybe goIngredient
-     $ allIngredientScrapers
-  stepsMay <- case flip HashMap.lookup stepScrapers =<< domainMay of
-    Just StepScraper {..} -> pure . fmap (,stepScraperInfo) . runScraper runStepParser $ stepScraperRun
-    Nothing -> pure
-      . lastMay
-      . sortOn (length . fst)
-      . mapMaybe goStep
-      $ allStepScrapers
-  case stepsMay of
-    Just (steps, stepInfo) | not (null steps) -> pure (ScrapedRecipe name ingredients steps, ScrapedInfoIngredientStep ingredientInfo stepInfo)
-    _ -> do
-      pure (ScrapedRecipe name ingredients [], ScrapedInfoIngredient ingredientInfo)
-
-isInvalidScraper :: ScrapedInfo -> Bool
-isInvalidScraper scrapeInfo =
-  let matchesIngredientVersion info =
-        (==) (Just (scrapeInfoVersion info))
-          . fmap (scrapeInfoVersion . ingredientScraperInfo)
-          . find ((==) (scrapeInfoName info) . scrapeInfoName . ingredientScraperInfo)
-          $ allIngredientScrapers
-      matchesStepVersion info =
-        (==) (Just (scrapeInfoVersion info))
-          . fmap (scrapeInfoVersion . stepScraperInfo)
-          . find ((==) (scrapeInfoName info) . scrapeInfoName . stepScraperInfo)
-          $ allStepScrapers
-  in case scrapeInfo of
-    ScrapedInfoIngredient ingredient -> not (matchesIngredientVersion ingredient)
-    ScrapedInfoIngredientStep ingredient step -> not (matchesIngredientVersion ingredient) || not (matchesStepVersion step)
+-- |Scrape a URL and also parse it.
+scrapeAndParseUrl :: Manager -> URI -> IO (RecipeName, [Ingredient], [Step], ScrapeMetaWrapper)
+scrapeAndParseUrl = scrape
+  (RecipeName . unScrapedRecipeName)
+  (nonempty "ingredients" parseScrapedIngredients)
+  (nonempty "steps" parseScrapedSteps)
+  where
+    nonempty typ ma = ma >=> \case
+      [] -> Left $ "No " <> typ <> " found"
+      xs -> Right xs

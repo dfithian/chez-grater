@@ -52,12 +52,13 @@ library
   import: options, ghc-options
   exposed-modules:
       Chez.Grater
-      Chez.Grater.Combinable
-      Chez.Grater.Conversion
-      Chez.Grater.CI.Orphans
-      Chez.Grater.Json
+      Chez.Grater.Internal.CI.Orphans
+      Chez.Grater.Internal.Json
+      Chez.Grater.Internal.Prelude
+      Chez.Grater.Manager
       Chez.Grater.Parser
-      Chez.Grater.Prelude
+      Chez.Grater.Parser.Types
+      Chez.Grater.Scraper
       Chez.Grater.Scraper.Site
       Chez.Grater.Scraper.Types
       Chez.Grater.Types
@@ -69,12 +70,12 @@ library
       aeson < 1.6
     , attoparsec < 0.14
     , base < 5.0
-    , bytestring < 0.11
     , case-insensitive < 1.3
     , containers < 0.7
     , hashable < 1.4
-    , http-api-data < 0.5
     , http-client < 0.7
+    , http-client-tls < 0.4
+    , http-types < 0.13
     , network-uri < 2.7
     , scalpel < 0.7
     , text < 1.3
@@ -85,7 +86,6 @@ test-suite tests
   type: exitcode-stdio-1.0
   main-is: main.hs
   other-modules:
-      Chez.Grater.ConversionSpec
       Chez.Grater.Gen
       Chez.Grater.ParsedIngredients
       Chez.Grater.ParserSpec
@@ -104,8 +104,6 @@ test-suite tests
     , file-path-th < 0.2
     , hspec < 2.8
     , http-client < 0.7
-    , http-client-tls < 0.4
-    , http-types < 0.13
     , network-uri < 2.7
     , QuickCheck < 2.15
     , text < 1.3

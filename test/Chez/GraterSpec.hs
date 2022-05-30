@@ -1,6 +1,6 @@
 module Chez.GraterSpec where
 
-import Chez.Grater.Prelude
+import Chez.Grater.Internal.Prelude
 
 import Chez.Grater.ParsedIngredients
   ( allRecipesIngredients, allRecipesSteps, bettyCrockerIngredients, bettyCrockerSteps
@@ -9,10 +9,10 @@ import Chez.Grater.ParsedIngredients
   , pillsburySteps, rachelMansfieldIngredients, rachelMansfieldSteps, sallysBakingIngredients
   , sallysBakingSteps, tasteOfHomeIngredients, tasteOfHomeSteps
   )
-import Chez.Grater.Scraper.Types (ScrapedRecipe(..))
+import Chez.Grater.Scraper.Types ()
 import Chez.Grater.TestEnv (Env(..))
 import Chez.Grater.Types
-  ( Ingredient(..), IngredientName(..), Quantity(..), RecipeName(..), Step(..), Unit(..)
+  ( Ingredient(..), IngredientName(..), RecipeName(..), Step(..), emptyQuantity
   )
 import Control.Monad (when)
 import Data.List (intercalate)
@@ -48,24 +48,24 @@ defaultTestCfg env = TestCfg
 scrapeAndParse :: Env -> String -> String -> ([Ingredient], [Step]) -> Expectation
 scrapeAndParse Env {..} url expectedName (expectedIngredients, expectedSteps) = do
   uri <- maybe (fail "Invalid URL") pure $ parseURI url
-  ScrapedRecipe {..} <- fst <$> scrapeUrl envManager uri
-  scrapedRecipeName `shouldBe` RecipeName (Text.pack expectedName)
-  scrapedRecipeIngredients `shouldMatchList` expectedIngredients
-  scrapedRecipeSteps `shouldMatchList` expectedSteps
+  (name, ingredients, steps, _) <- scrapeAndParseUrl envManager uri
+  name `shouldBe` RecipeName (Text.pack expectedName)
+  ingredients `shouldMatchList` expectedIngredients
+  steps `shouldMatchList` expectedSteps
 
 scrapeAndParseConfig :: TestCfg -> String -> Expectation
 scrapeAndParseConfig TestCfg {..} url = do
   let Env {..} = env
   uri <- maybe (fail "Invalid URL") pure $ parseURI url
-  ScrapedRecipe {..} <- fst <$> scrapeUrl envManager uri
-  unRecipeName scrapedRecipeName `shouldSatisfy` not . Text.null
-  scrapedRecipeIngredients `shouldSatisfy` (\xs -> length xs >= requiredIngredients)
-  scrapedRecipeIngredients `shouldSatisfy` any hasQuantityAndUnit
-  scrapedRecipeIngredients `shouldSatisfy` duplicates
-  lessThanThreePrefixes scrapedRecipeIngredients
-  scrapedRecipeSteps `shouldSatisfy` (\xs -> length xs >= requiredSteps)
+  (name, ingredients, steps, _) <- scrapeAndParseUrl envManager uri
+  unRecipeName name `shouldSatisfy` not . Text.null
+  ingredients `shouldSatisfy` (\xs -> length xs >= requiredIngredients)
+  ingredients `shouldSatisfy` any hasQuantityAndUnit
+  ingredients `shouldSatisfy` duplicates
+  lessThanThreePrefixes ingredients
+  steps `shouldSatisfy` (\xs -> length xs >= requiredSteps)
   where
-    hasQuantityAndUnit Ingredient {..} = if requireOneQuantityUnit then ingredientQuantity /= QuantityMissing && ingredientUnit /= UnitMissing else True
+    hasQuantityAndUnit Ingredient {..} = if requireOneQuantityUnit then ingredientQuantity /= emptyQuantity && ingredientUnit /= Nothing else True
     duplicates = (< allowedDuplicates) . length . filter ((> 1) . length . snd) . Map.toList . foldr (\x@Ingredient {..} -> Map.insertWith (<>) ingredientName [x]) mempty
     lessThanThreePrefixes xs = do
       let names = ingredientName <$> xs

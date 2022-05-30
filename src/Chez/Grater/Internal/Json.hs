@@ -1,6 +1,6 @@
-module Chez.Grater.Json where
+module Chez.Grater.Internal.Json where
 
-import Chez.Grater.Prelude
+import Chez.Grater.Internal.Prelude
 
 import Data.Aeson.TH
   ( Options, allNullaryToStringTag, constructorTagModifier, defaultOptions, fieldLabelModifier
