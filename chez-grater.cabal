@@ -1,9 +1,13 @@
 cabal-version: 3.0
 name:          chez-grater
 version:       0.0.1
+author:        Dan Fithian
 maintainer:    Dan Fithian
 copyright:     2022 Dan Fithian
 build-type:    Simple
+description:   Parse and scrape recipe blogs
+license:       MIT
+category:      Web
 extra-source-files:
     test/fixtures/banana-bread-rachelmansfield.txt
     test/fixtures/chicken-pot-pie-allrecipes.txt
@@ -46,7 +50,7 @@ common options
   default-language: Haskell2010
 
 common ghc-options
-  ghc-options: -Wall -Wunused-packages -fwarn-tabs -fwarn-redundant-constraints -Wincomplete-uni-patterns -eventlog -O0
+  ghc-options: -Wall -Wunused-packages -fwarn-tabs -fwarn-redundant-constraints -Wincomplete-uni-patterns -eventlog
 
 library
   import: options, ghc-options
@@ -63,6 +67,8 @@ library
       Chez.Grater.Scraper.Types
       Chez.Grater.Types
   other-modules:
+      Paths_chez_grater
+  autogen-modules:
       Paths_chez_grater
   hs-source-dirs:
       src
