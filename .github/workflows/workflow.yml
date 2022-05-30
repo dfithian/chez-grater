@@ -19,4 +19,5 @@ jobs:
         with:
           ghc-version: '8.10.7'
           enable-stack: false
+      - run: cabal v2-update
       - run: cabal v2-test --test-log /dev/stdout --test-show-details always
