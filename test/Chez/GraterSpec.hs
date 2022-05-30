@@ -9,6 +9,7 @@ import Chez.Grater.ParsedIngredients
   , pillsburySteps, rachelMansfieldIngredients, rachelMansfieldSteps, sallysBakingIngredients
   , sallysBakingSteps, tasteOfHomeIngredients, tasteOfHomeSteps
   )
+import Chez.Grater.Scraper.Site (allScrapers)
 import Chez.Grater.Scraper.Types ()
 import Chez.Grater.TestEnv (Env(..))
 import Chez.Grater.Types
@@ -48,7 +49,7 @@ defaultTestCfg env = TestCfg
 scrapeAndParse :: Env -> String -> String -> ([Ingredient], [Step]) -> Expectation
 scrapeAndParse Env {..} url expectedName (expectedIngredients, expectedSteps) = do
   uri <- maybe (fail "Invalid URL") pure $ parseURI url
-  (name, ingredients, steps, _) <- scrapeAndParseUrl envManager uri
+  (name, ingredients, steps, _) <- scrapeAndParseUrl allScrapers envManager uri
   name `shouldBe` RecipeName (Text.pack expectedName)
   ingredients `shouldMatchList` expectedIngredients
   steps `shouldMatchList` expectedSteps
@@ -57,7 +58,7 @@ scrapeAndParseConfig :: TestCfg -> String -> Expectation
 scrapeAndParseConfig TestCfg {..} url = do
   let Env {..} = env
   uri <- maybe (fail "Invalid URL") pure $ parseURI url
-  (name, ingredients, steps, _) <- scrapeAndParseUrl envManager uri
+  (name, ingredients, steps, _) <- scrapeAndParseUrl allScrapers envManager uri
   unRecipeName name `shouldSatisfy` not . Text.null
   ingredients `shouldSatisfy` (\xs -> length xs >= requiredIngredients)
   ingredients `shouldSatisfy` any hasQuantityAndUnit

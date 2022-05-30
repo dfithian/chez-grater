@@ -1,17 +1,22 @@
 -- |Description: Ingredient and step scrapers for all the websites we know about.
-module Chez.Grater.Scraper.Site where
+module Chez.Grater.Scraper.Site
+  ( allScrapers, debugI, debugS
+  ) where
 
 import Chez.Grater.Internal.Prelude
 
 import Chez.Grater.Scraper.Types
   ( IngredientScraper(..), ScrapeMeta(..), ScrapeName(..), ScrapeVersion(..), ScrapedIngredient(..)
-  , ScrapedStep(..), SiteName(..), StepScraper(..), inception
+  , ScrapedStep(..), Scrapers(..), SiteName(..), StepScraper(..), inception
   )
 import Data.Function (on)
 import Text.HTML.Scalpel ((//), (@:), (@=), Scraper, Selector)
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 import qualified Text.HTML.Scalpel as Scalpel
+
+allScrapers :: Scrapers
+allScrapers = Scrapers ingredientScrapers allIngredientScrapers stepScrapers allStepScrapers
 
 ingredientScrapers :: HashMap SiteName IngredientScraper
 ingredientScrapers = HashMap.fromList
@@ -217,7 +222,8 @@ stepScrapers = HashMap.fromList
 
 -- |Get all ingredient scrapers, ordered by most popular first.
 allIngredientScrapers :: [IngredientScraper]
-allIngredientScrapers = fmap head . reverse . sortOn length  . groupBy ((==) `on` (scrapeMetaName . ingredientScraperMeta)) . sortOn (scrapeMetaName . ingredientScraperMeta) . HashMap.elems $ ingredientScrapers
+allIngredientScrapers = fmap head . reverse . sortOn length  . groupBy ((==) `on` (scrapeMetaName . ingredientScraperMeta)) . sortOn (scrapeMetaName . ingredientScraperMeta) $
+   HashMap.elems ingredientScrapers <> [ingredientLi4, ingredientLi12]
 
 -- |Get all step scrapers, ordered by most popular first.
 allStepScrapers :: [StepScraper]

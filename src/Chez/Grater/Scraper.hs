@@ -2,12 +2,9 @@ module Chez.Grater.Scraper where
 
 import Chez.Grater.Internal.Prelude
 
-import Chez.Grater.Scraper.Site
-  ( allIngredientScrapers, allStepScrapers, ingredientScrapers, stepScrapers
-  )
 import Chez.Grater.Scraper.Types
   ( IngredientScraper(..), ScrapeError(..), ScrapeMetaWrapper(..), ScrapedRecipeName(..)
-  , SiteName(..), StepScraper(..), ScrapedIngredient, ScrapedStep, title
+  , Scrapers(..), SiteName(..), StepScraper(..), ScrapedIngredient, ScrapedStep, title
   )
 import Network.HTTP.Client (Manager)
 import Network.URI (URI, uriAuthority, uriRegName)
@@ -19,8 +16,8 @@ scrape
   :: (ScrapedRecipeName -> a)
   -> ([ScrapedIngredient] -> Either Text [b])
   -> ([ScrapedStep] -> Either Text [c])
-  -> Manager -> URI -> IO (a, [b], [c], ScrapeMetaWrapper)
-scrape mkName runIngredientParser runStepParser manager uri = do
+  -> Scrapers -> Manager -> URI -> IO (a, [b], [c], ScrapeMetaWrapper)
+scrape mkName runIngredientParser runStepParser scrapers manager uri = do
   let cfg = Scalpel.Config Scalpel.defaultDecoder (Just manager)
   tags <- Scalpel.fetchTagsWithConfig cfg (show uri)
   let domainMay = SiteName . Text.replace "www." "" . Text.pack . uriRegName <$> uriAuthority uri
@@ -36,21 +33,23 @@ scrape mkName runIngredientParser runStepParser manager uri = do
         Just True -> (,stepScraperMeta) <$> runScraper runStepParser stepScraperRun
         _ -> Nothing
 
-  (ingredients, ingredientMeta) <- case flip HashMap.lookup ingredientScrapers =<< domainMay of
+  (ingredients, ingredientMeta) <- case flip HashMap.lookup (scrapersIngredientBySite scrapers) =<< domainMay of
     Just IngredientScraper {..} -> maybe (throwIO $ ScrapeError "Failed to scrape known URL") (pure . (,ingredientScraperMeta)) $
       runScraper runIngredientParser ingredientScraperRun
     Nothing -> maybe (throwIO $ ScrapeError "Failed to scrape URL from defaults") pure
      . lastMay
      . sortOn (length . fst)
      . mapMaybe goIngredient
-     $ allIngredientScrapers
-  stepsMay <- case flip HashMap.lookup stepScrapers =<< domainMay of
+     . scrapersIngredients
+     $ scrapers
+  stepsMay <- case flip HashMap.lookup (scrapersStepBySite scrapers) =<< domainMay of
     Just StepScraper {..} -> pure . fmap (,stepScraperMeta) . runScraper runStepParser $ stepScraperRun
     Nothing -> pure
       . lastMay
       . sortOn (length . fst)
       . mapMaybe goStep
-      $ allStepScrapers
+      . scrapersSites
+      $ scrapers
   case stepsMay of
     Just (steps, stepMeta) | not (null steps) -> pure (mkName name, ingredients, steps, ScrapeMetaWrapperIngredientAndStep ingredientMeta stepMeta)
     _ -> pure (mkName name, ingredients, [], ScrapeMetaWrapperIngredient ingredientMeta)

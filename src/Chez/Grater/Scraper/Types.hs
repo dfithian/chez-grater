@@ -63,6 +63,13 @@ data StepScraper = StepScraper
 newtype SiteName = SiteName { unSiteName :: Text }
   deriving (Eq, Ord, Show, IsString, Hashable)
 
+data Scrapers = Scrapers
+  { scrapersIngredientBySite :: HashMap SiteName IngredientScraper
+  , scrapersIngredients      :: [IngredientScraper]
+  , scrapersStepBySite       :: HashMap SiteName StepScraper
+  , scrapersSites            :: [StepScraper]
+  }
+
 data ScrapeError = ScrapeError Text
   deriving (Eq, Show)
 
