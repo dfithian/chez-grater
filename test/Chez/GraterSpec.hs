@@ -221,6 +221,7 @@ spec env = describe "Scrape" $ do
     it "handles chefspencil" $ scrapeAndParseConfig (defCfg { requiredSteps = 0 }) "https://www.chefspencil.com/recipe/carrot-tarte-tatin/"
     it "handles sweetandsavorymeals" $ scrapeAndParseConfig defCfg "https://sweetandsavorymeals.com/air-fryer-eggplant/"
     it "handles eatwell101" $ scrapeAndParseConfig (defCfg { requiredSteps = 0 }) "https://www.eatwell101.com/garlic-butter-chicken-bites-asparagus-recipe"
+    it "handles bbcgoodfood" $ scrapeAndParseConfig defCfg "https://www.bbcgoodfood.com/recipes/challah/"
 
   describe "Implicit" $ do
     describe "WPRM" $ do

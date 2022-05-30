@@ -113,6 +113,8 @@ ingredientScrapers = HashMap.fromList
   , ("thekitchn.com", thekitchnI)
 
   , ("eatwell101.com", eatwell101I)
+
+  , ("bbcgoodfood.com", bbcGoodFoodI)
   ]
 
 stepScrapers :: HashMap SiteName StepScraper
@@ -209,6 +211,8 @@ stepScrapers = HashMap.fromList
   , ("food52.com", food52S)
 
   , ("thekitchn.com", thekitchnS)
+
+  , ("bbcgoodfood.com", bbcGoodFoodS)
   ]
 
 -- |Get all ingredient scrapers, ordered by most popular first.
@@ -608,3 +612,13 @@ eatwell101I :: IngredientScraper
 eatwell101I = simpleIngredientScraper "eatwell101"
   denyAll
   ("div" @: [Scalpel.hasClass "pf-content"] // "li")
+
+bbcGoodFoodI :: IngredientScraper
+bbcGoodFoodI = simpleIngredientScraper "bbcgoodfood"
+  denyAll
+  ("section" @: [Scalpel.hasClass "recipe__ingredients"] // "li")
+
+bbcGoodFoodS :: StepScraper
+bbcGoodFoodS = simpleStepScraper "bbcgoodfood"
+  denyAll
+  ("section" @: [Scalpel.hasClass "recipe__method-steps"] // "li")
