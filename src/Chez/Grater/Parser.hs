@@ -7,9 +7,8 @@ import Chez.Grater.Parser.Types
   )
 import Chez.Grater.Scraper.Types (ScrapedIngredient(..), ScrapedStep(..))
 import Chez.Grater.Types
-  ( Ingredient(..), IngredientName(..), Quantity(..), Step(..), Unit(..), box, cup, emptyQuantity
-  , gram, liter, milligram, milliliter, mkQuantity, ounce, pinch, pound, splash, sprinkle
-  , tablespoon, teaspoon, whole
+  ( Ingredient(..), IngredientName(..), Quantity(..), Step(..), Unit(..), box, cup, gram, liter
+  , milligram, milliliter, ounce, pinch, pound, splash, sprinkle, tablespoon, teaspoon, whole
   )
 import Data.Char (isAlpha, isDigit, isSpace)
 import Data.Function (fix)
@@ -58,7 +57,7 @@ unitAliasTable = Map.fromList
   ]
 
 quantityAliasTable :: Map (CI Text) Quantity
-quantityAliasTable = fmap mkQuantity . Map.fromList $
+quantityAliasTable = Map.fromList $
   [ ("half dozen", 6)
   , ("dozen", 12)
   , ("quarter", 0.25)
@@ -81,16 +80,16 @@ quantityAliasTable = fmap mkQuantity . Map.fromList $
 scrubIngredientName :: ParsedIngredientName -> IngredientName
 scrubIngredientName = IngredientName . unParsedIngredientName
 
-scrubUnit :: ParsedUnit -> Maybe Unit
+scrubUnit :: ParsedUnit -> Unit
 scrubUnit = \case
-  ParsedUnit x -> Just $ Map.findWithDefault (Unit x) x unitAliasTable
-  ParsedUnitMissing -> Nothing
+  ParsedUnit x -> Map.findWithDefault (Unit x) x unitAliasTable
+  ParsedUnitMissing -> UnitMissing
 
 scrubQuantity :: ParsedQuantity -> Quantity
 scrubQuantity = \case
-  ParsedQuantity q -> mkQuantity q
-  ParsedQuantityWord w -> Map.findWithDefault emptyQuantity w quantityAliasTable
-  ParsedQuantityMissing -> emptyQuantity
+  ParsedQuantity q -> Quantity q
+  ParsedQuantityWord w -> Map.findWithDefault QuantityMissing w quantityAliasTable
+  ParsedQuantityMissing -> QuantityMissing
 
 scrubIngredient :: ParsedIngredient -> Ingredient
 scrubIngredient ParsedIngredient {..} = Ingredient
@@ -179,38 +178,51 @@ sanitize = replacements . Text.filter (not . isIgnoredC)
 runParser :: Atto.Parser a -> Text -> Either String a
 runParser parser x = Atto.parseOnly parser (Text.strip (sanitize x))
 
+requireNonEmpty :: Text -> [a] -> Either Text [a]
+requireNonEmpty typ = \case
+  [] -> Left $ "No " <> typ <> " found"
+  xs -> Right xs
+
 -- |Parse scraped ingredients.
 parseScrapedIngredients :: [ScrapedIngredient] -> Either Text [Ingredient]
-parseScrapedIngredients xs = left (const "Failed to parse ingredients") . fmap (nubOrd . fmap scrubIngredient . catMaybes) . for xs $ \case
-  ScrapedIngredient raw | Text.null raw -> pure Nothing
-  ScrapedIngredient raw -> Just <$> runParser ingredientP raw
+parseScrapedIngredients xs = do
+  let parseOne = \case
+        ScrapedIngredient raw | Text.null raw -> pure Nothing
+        ScrapedIngredient raw -> Just <$> runParser ingredientP raw
+  ingredients <- left (const "Failed to parse ingredients")
+    . fmap (nubOrd . fmap scrubIngredient . catMaybes)
+    $ for xs parseOne
+  requireNonEmpty "ingredients" ingredients
 
 -- |Parse raw ingredients, i.e. ones we know should be separated by newlines.
 parseRawIngredients :: Text -> Either Text [Ingredient]
 parseRawIngredients content = do
-  either (const $ Left "Failed to parse ingredients") (pure . fmap scrubIngredient)
+  ingredients <- either (const $ Left "Failed to parse ingredients") (pure . fmap scrubIngredient)
     . traverse (runParser ingredientP)
     . filter (not . Text.null)
     . Text.lines
     $ content
+  requireNonEmpty "ingredients" ingredients
 
 -- |Passive ingredient parser which separates on newlines.
 mkIngredients :: Text -> [Ingredient]
 mkIngredients =
-  fmap (\str -> Ingredient (IngredientName (CI.mk str)) emptyQuantity Nothing) . Text.lines
+  fmap (\str -> Ingredient (IngredientName (CI.mk str)) QuantityMissing UnitMissing) . Text.lines
 
 -- |Parse scraped steps.
 parseScrapedSteps :: [ScrapedStep] -> Either Text [Step]
-parseScrapedSteps = \case
-  [ScrapedStep single] | "1." `Text.isPrefixOf` single -> flip fix (filter (not . Text.null) . Text.words . Text.drop 2 $ single, (1 :: Int), []) $ \f -> \case
-    ([], _, parsed) -> Right $ reverse parsed
-    (toParse, ordinal, parsed) ->
-      let nextOrdinal = tshow (ordinal + 1) <> "."
-          (next, rest) = span (not . Text.isSuffixOf nextOrdinal) toParse
-      in case rest of
-        x:xs -> case Text.stripSuffix nextOrdinal x of
-          Just y -> f (xs, ordinal + 1, (Step (Text.unwords (next <> [y]))):parsed)
-          Nothing -> f (xs, ordinal + 1, (Step (Text.unwords next)):parsed)
-        [] -> f ([], ordinal + 1, (Step (Text.unwords next)):parsed)
-  [ScrapedStep single] -> Right $ fmap (Step . Text.unwords . filter (not . Text.null) . Text.words) . filter (not . Text.null) . fmap Text.strip . Text.lines $ single
-  xs -> Right $ fmap (\(ScrapedStep step) -> Step . Text.unwords . filter (not . Text.null) . Text.words $ step) xs
+parseScrapedSteps xs = do
+  steps <- case xs of
+    [ScrapedStep single] | "1." `Text.isPrefixOf` single -> flip fix (filter (not . Text.null) . Text.words . Text.drop 2 $ single, (1 :: Int), []) $ \f -> \case
+      ([], _, parsed) -> Right $ reverse parsed
+      (toParse, ordinal, parsed) ->
+        let nextOrdinal = tshow (ordinal + 1) <> "."
+            (next, rest) = span (not . Text.isSuffixOf nextOrdinal) toParse
+        in case rest of
+          y:ys -> case Text.stripSuffix nextOrdinal y of
+            Just z -> f (ys, ordinal + 1, (Step (Text.unwords (next <> [z]))):parsed)
+            Nothing -> f (ys, ordinal + 1, (Step (Text.unwords next)):parsed)
+          [] -> f ([], ordinal + 1, (Step (Text.unwords next)):parsed)
+    [ScrapedStep single] -> Right $ fmap (Step . Text.unwords . filter (not . Text.null) . Text.words) . filter (not . Text.null) . fmap Text.strip . Text.lines $ single
+    _ -> Right $ fmap (\(ScrapedStep step) -> Step . Text.unwords . filter (not . Text.null) . Text.words $ step) xs
+  requireNonEmpty "steps" steps

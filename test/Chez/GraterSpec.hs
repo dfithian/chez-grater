@@ -13,7 +13,7 @@ import Chez.Grater.Scraper.Site (allScrapers)
 import Chez.Grater.Scraper.Types ()
 import Chez.Grater.TestEnv (Env(..))
 import Chez.Grater.Types
-  ( Ingredient(..), IngredientName(..), RecipeName(..), Step(..), emptyQuantity
+  ( Ingredient(..), IngredientName(..), Quantity(..), RecipeName(..), Step(..), Unit(..)
   )
 import Control.Monad (when)
 import Data.List (intercalate)
@@ -66,7 +66,7 @@ scrapeAndParseConfig TestCfg {..} url = do
   lessThanThreePrefixes ingredients
   steps `shouldSatisfy` (\xs -> length xs >= requiredSteps)
   where
-    hasQuantityAndUnit Ingredient {..} = if requireOneQuantityUnit then ingredientQuantity /= emptyQuantity && ingredientUnit /= Nothing else True
+    hasQuantityAndUnit Ingredient {..} = if requireOneQuantityUnit then ingredientQuantity /= QuantityMissing && ingredientUnit /= UnitMissing else True
     duplicates = (< allowedDuplicates) . length . filter ((> 1) . length . snd) . Map.toList . foldr (\x@Ingredient {..} -> Map.insertWith (<>) ingredientName [x]) mempty
     lessThanThreePrefixes xs = do
       let names = ingredientName <$> xs

@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name:          chez-grater
-version:       0.0.2
+version:       0.0.3
 author:        Dan Fithian
 maintainer:    Dan Fithian
 copyright:     2022 Dan Fithian
@@ -65,6 +65,7 @@ library
       Chez.Grater.Manager
       Chez.Grater.Parser
       Chez.Grater.Parser.Types
+      Chez.Grater.Readable.Types
       Chez.Grater.Scraper
       Chez.Grater.Scraper.Site
       Chez.Grater.Scraper.Types

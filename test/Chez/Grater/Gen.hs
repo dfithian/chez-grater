@@ -6,6 +6,7 @@ import Test.QuickCheck (Gen, arbitrary, elements, oneof)
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text as Text
 
+import Chez.Grater.Readable.Types
 import Chez.Grater.Types
 
 maybeGen :: Gen a -> Gen (Maybe a)
@@ -41,24 +42,42 @@ arbitraryDouble = trunc 5 . abs <$> arbitrary
 arbitraryInt :: Gen Int
 arbitraryInt = abs <$> arbitrary
 
-arbitraryFraction :: Gen Fraction
-arbitraryFraction = Fraction
-  <$> arbitraryInt
-  <*> ((+1) <$> arbitraryInt)
-
 arbitraryQuantity :: Gen Quantity
-arbitraryQuantity = Quantity
-  <$> maybeGen arbitraryInt
-  <*> maybeGen arbitraryFraction
+arbitraryQuantity = oneof
+  [ pure QuantityMissing
+  , Quantity <$> arbitraryDouble
+  ]
 
-arbitraryUnit :: Gen (Maybe Unit)
-arbitraryUnit = maybeGen (Unit <$> arbitraryCi)
+arbitraryUnit :: Gen Unit
+arbitraryUnit = oneof
+  [ pure UnitMissing
+  , Unit <$> arbitraryCi
+  ]
 
 arbitraryIngredient :: Gen Ingredient
 arbitraryIngredient = Ingredient
   <$> arbitraryIngredientName
   <*> arbitraryQuantity
   <*> arbitraryUnit
+
+arbitraryReadableFraction :: Gen ReadableFraction
+arbitraryReadableFraction = ReadableFraction
+  <$> arbitraryInt
+  <*> ((+1) <$> arbitraryInt)
+
+arbitraryReadableQuantity :: Gen ReadableQuantity
+arbitraryReadableQuantity = ReadableQuantity
+  <$> maybeGen arbitraryInt
+  <*> maybeGen arbitraryReadableFraction
+
+arbitraryReadableUnit :: Gen ReadableUnit
+arbitraryReadableUnit = ReadableUnit <$> arbitraryCi
+
+arbitraryReadableIngredient :: Gen ReadableIngredient
+arbitraryReadableIngredient = ReadableIngredient
+  <$> arbitraryIngredientName
+  <*> arbitraryReadableQuantity
+  <*> maybeGen arbitraryReadableUnit
 
 arbitraryStep :: Gen Step
 arbitraryStep = Step
