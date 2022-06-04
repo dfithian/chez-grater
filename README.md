@@ -7,8 +7,7 @@ Scrape and parse recipe blogs to skip the ads. Base server logic behind https://
 ## Usage
 
 ```haskell
-import Prelude
-
+import Chez.Grater.Internal.Prelude
 import Chez.Grater (scrapeAndParseUrl)
 import Chez.Grater.Scraper.Site (allScrapers)
 import Chez.Grater.Manager (createManager)

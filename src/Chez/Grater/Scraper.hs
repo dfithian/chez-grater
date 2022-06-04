@@ -12,6 +12,7 @@ import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 import qualified Text.HTML.Scalpel as Scalpel
 
+-- |Scrape a recipe. This is the low-level API, used by 'Chez.Grater'.
 scrape
   :: (ScrapedRecipeName -> a)
   -> ([ScrapedIngredient] -> Either Text [b])

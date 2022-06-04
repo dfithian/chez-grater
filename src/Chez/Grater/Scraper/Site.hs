@@ -1,4 +1,4 @@
--- |Description: Ingredient and step scrapers for all the websites we know about.
+-- |Ingredient and step scrapers for all the websites we know about.
 module Chez.Grater.Scraper.Site
   ( allScrapers, debugI, debugS
   ) where

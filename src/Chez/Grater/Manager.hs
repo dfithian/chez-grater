@@ -6,6 +6,7 @@ import Network.HTTP.Client (Manager, managerModifyRequest, requestHeaders)
 import Network.HTTP.Client.TLS (newTlsManagerWith, tlsManagerSettings)
 import Network.HTTP.Types (hUserAgent)
 
+-- |Creates a manager with a user agent, since some recipe blogs require that.
 createManager :: IO Manager
 createManager =
   newTlsManagerWith tlsManagerSettings

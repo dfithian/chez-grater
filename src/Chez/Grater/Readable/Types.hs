@@ -1,4 +1,4 @@
--- |Description: Types and instances for instances for humans to read.
+-- |Types and instances for instances for humans to read.
 module Chez.Grater.Readable.Types where
 
 import Chez.Grater.Internal.Prelude
