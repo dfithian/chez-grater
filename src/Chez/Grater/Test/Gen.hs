@@ -1,4 +1,4 @@
-module Chez.Grater.Gen where
+module Chez.Grater.Test.Gen where
 
 import Chez.Grater.Internal.Prelude
 
@@ -60,6 +60,10 @@ arbitraryIngredient = Ingredient
   <*> arbitraryQuantity
   <*> arbitraryUnit
 
+arbitraryStep :: Gen Step
+arbitraryStep = Step
+  <$> arbitraryAlphaNumStr
+
 arbitraryReadableFraction :: Gen ReadableFraction
 arbitraryReadableFraction = ReadableFraction
   <$> arbitraryInt
@@ -72,13 +76,3 @@ arbitraryReadableQuantity = ReadableQuantity
 
 arbitraryReadableUnit :: Gen ReadableUnit
 arbitraryReadableUnit = ReadableUnit <$> arbitraryCi
-
-arbitraryReadableIngredient :: Gen ReadableIngredient
-arbitraryReadableIngredient = ReadableIngredient
-  <$> arbitraryIngredientName
-  <*> arbitraryReadableQuantity
-  <*> maybeGen arbitraryReadableUnit
-
-arbitraryStep :: Gen Step
-arbitraryStep = Step
-  <$> arbitraryAlphaNumStr

@@ -5,10 +5,9 @@ import Chez.Grater.Internal.Prelude
 
 import Chez.Grater.Internal.CI.Orphans ()
 import Chez.Grater.Internal.Json (jsonOptions)
-import Chez.Grater.Types (Quantity(..), IngredientName)
+import Chez.Grater.Types (Quantity(..), Unit(..))
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Aeson.TH (deriveJSON)
-import GHC.Generics (Generic)
 
 data ReadableFraction = ReadableFraction
   { readableFractionNumerator   :: Int
@@ -25,19 +24,8 @@ data ReadableQuantity = ReadableQuantity
 newtype ReadableUnit = ReadableUnit { unReadableUnit :: CI Text }
   deriving (Eq, Ord, Show, FromJSON, ToJSON)
 
-data ReadableIngredient = ReadableIngredient
-  { readableIngredientName     :: IngredientName
-  , readableIngredientQuantity :: ReadableQuantity
-  , readableIngredientUnit     :: Maybe ReadableUnit
-  }
-  deriving (Eq, Ord, Show)
-
-newtype ReadableStep = ReadableStep { unReadableStep :: Text }
-  deriving (Eq, Ord, Show, Generic, FromJSON, ToJSON)
-
 deriveJSON (jsonOptions "readableFraction") ''ReadableFraction
 deriveJSON (jsonOptions "readableQuantity") ''ReadableQuantity
-deriveJSON (jsonOptions "readableIngredient") ''ReadableIngredient
 
 mkReadableQuantity :: Quantity -> ReadableQuantity
 mkReadableQuantity q = case splitQuantity q of
@@ -76,3 +64,8 @@ mkReadableQuantity q = case splitQuantity q of
         case abs (fromIntegral (round q2 :: Int) - q2) < quantityPrecision of
           True -> Just (round q2, 0.0)
           False -> let w = truncate q2 in Just (w, q2 - fromIntegral w)
+
+mkReadableUnit :: Unit -> Maybe ReadableUnit
+mkReadableUnit = \case
+  Unit x -> Just (ReadableUnit x)
+  UnitMissing -> Nothing

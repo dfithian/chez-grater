@@ -2,15 +2,15 @@ module Chez.GraterSpec where
 
 import Chez.Grater.Internal.Prelude
 
-import Chez.Grater.ParsedIngredients
+import Chez.Grater.Scraper.Site (allScrapers)
+import Chez.Grater.Scraper.Types ()
+import Chez.Grater.Test.ParsedIngredients
   ( allRecipesIngredients, allRecipesSteps, bettyCrockerIngredients, bettyCrockerSteps
   , cafeDelitesIngredients, cafeDelitesSteps, eatingWellIngredients, eatingWellSteps
   , foodIngredients, foodNetworkIngredients, foodNetworkSteps, foodSteps, pillsburyIngredients
   , pillsburySteps, rachelMansfieldIngredients, rachelMansfieldSteps, sallysBakingIngredients
   , sallysBakingSteps, tasteOfHomeIngredients, tasteOfHomeSteps
   )
-import Chez.Grater.Scraper.Site (allScrapers)
-import Chez.Grater.Scraper.Types ()
 import Chez.Grater.TestEnv (Env(..))
 import Chez.Grater.Types
   ( Ingredient(..), IngredientName(..), Quantity(..), RecipeName(..), Step(..), Unit(..)

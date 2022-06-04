@@ -1,4 +1,4 @@
-module Chez.Grater.ParsedIngredients where
+module Chez.Grater.Test.ParsedIngredients where
 
 import Chez.Grater.Internal.Prelude
 

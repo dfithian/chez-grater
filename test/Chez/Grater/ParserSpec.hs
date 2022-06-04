@@ -2,12 +2,12 @@ module Chez.Grater.ParserSpec where
 
 import Chez.Grater.Internal.Prelude
 
-import Chez.Grater.ParsedIngredients
-  ( allRecipesIngredients, foodNetworkIngredients, pillsburyIngredients, rachelMansfieldIngredients
-  , tasteOfHomeIngredients
-  )
 import Chez.Grater.Parser.Types
   ( ParsedIngredient(..), ParsedIngredientName(..), ParsedQuantity(..), ParsedUnit(..)
+  )
+import Chez.Grater.Test.ParsedIngredients
+  ( allRecipesIngredients, foodNetworkIngredients, pillsburyIngredients, rachelMansfieldIngredients
+  , tasteOfHomeIngredients
   )
 import Data.FileEmbed (embedFile)
 import System.FilePath.TH (fileRelativeToAbsoluteStr)
