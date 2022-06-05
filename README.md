@@ -2,7 +2,7 @@
 
 ![chez-grater](https://github.com/dfithian/chez-grater/actions/workflows/workflow.yml/badge.svg)
 
-Scrape and parse recipe blogs to skip the ads. Base server logic behind https://app.mo-nomz.com/.
+Scrape and parse recipe blogs to skip the ads. Brains behind https://app.mo-nomz.com/.
 
 Feedback and enhancements via PR welcome.
 
