@@ -4,6 +4,8 @@
 
 Scrape and parse recipe blogs to skip the ads. Base server logic behind https://app.mo-nomz.com/.
 
+Feedback and enhancements via PR welcome.
+
 ## Usage
 
 Check [./app/main.hs](./app/main.hs) for an example.
