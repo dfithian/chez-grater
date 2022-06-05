@@ -28,10 +28,10 @@ flaky sea salt
 2 tbsp strawberry jam
 1 tbsp bourbon
 -------------------------------------------------------------------------------
-Preheat the oven to 400Â° F.
-In a food processor, combine the flour, baking powder, salt, and butter. Pulse until the mix clumps together to form larger pea-size balls. Drizzle in the buttermilk until the dough is "shaggy" looking. The dough will be a little dry.
-Turn the dough out onto a clean surface and pat into a 1-inch thick square. Cut the dough into 4 pieces. Add 1 slice of cream cheese to 3 of the squares, gently pressing to flatten. Stack the cream cheese topped pieces on top of each other. Add the final piece (with no cream cheese) on top of the stack (see above photos). Press down to flatten. Dust the surface with flour and roll the dough into a 1 inch thick rectangle. Cut into 12 biscuits. Transfer to a parchment-lined baking sheet and freeze 10-15 minutes, to chill.
-Remove the biscuits from the freezer and brush with melted butter. Transfer to the oven and bake for 20-25 minutes, until golden on top.
-Meanwhile, make the jam. Add the strawberries, honey, and lemon juice to a medium size pot over high heat. Bring to a boil, to cook for 5-8 minutes or until the jam has reduced and thickened by 1/3. Stir in the jam and bourbon, cook 1-2 minutes, remove from the heat.
-Serve the biscuits warm with butter and jam. I like sea salt on top too!
+- Preheat the oven to 400° F.
+- In a food processor, combine the flour, baking powder, salt, and butter. Pulse until the mix clumps together to form larger pea-size balls. Drizzle in the buttermilk until the dough is "shaggy" looking. The dough will be a little dry.
+- Turn the dough out onto a clean surface and pat into a 1-inch thick square. Cut the dough into 4 pieces. Add 1 slice of cream cheese to 3 of the squares, gently pressing to flatten. Stack the cream cheese topped pieces on top of each other. Add the final piece (with no cream cheese) on top of the stack (see above photos). Press down to flatten. Dust the surface with flour and roll the dough into a 1 inch thick rectangle. Cut into 12 biscuits. Transfer to a parchment-lined baking sheet and freeze 10-15 minutes, to chill.
+- Remove the biscuits from the freezer and brush with melted butter. Transfer to the oven and bake for 20-25 minutes, until golden on top.
+- Meanwhile, make the jam. Add the strawberries, honey, and lemon juice to a medium size pot over high heat. Bring to a boil, to cook for 5-8 minutes or until the jam has reduced and thickened by 1/3. Stir in the jam and bourbon, cook 1-2 minutes, remove from the heat.
+- Serve the biscuits warm with butter and jam. I like sea salt on top too!
 ```

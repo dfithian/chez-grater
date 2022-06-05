@@ -59,7 +59,7 @@ showRecipe (RecipeName name) ingredients steps = do
   putStrLn $ replicate width '-'
   traverse_ putStrLn $ fmap (Text.unpack . showReadableIngredient . mkReadableIngredient) ingredients
   putStrLn $ replicate width '-'
-  traverse_ putStrLn $ fmap (Text.unpack . unStep) steps
+  traverse_ putStrLn $ fmap (("- " <>) . Text.unpack . unStep) steps
 
 jsonRecipe :: RecipeName -> [Ingredient] -> [Step] -> IO ()
 jsonRecipe name ingredients steps =
