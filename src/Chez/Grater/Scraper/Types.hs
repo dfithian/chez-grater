@@ -35,10 +35,10 @@ newtype ScrapedRecipeName = ScrapedRecipeName { unScrapedRecipeName :: Text }
   deriving (Eq, Show, Generic)
 
 -- |Unparsed ingredient.
-data ScrapedIngredient = ScrapedIngredient Text
+newtype ScrapedIngredient = ScrapedIngredient { unScrapedIngredient :: Text }
   deriving (Eq, Ord, Show)
 
-data ScrapedStep = ScrapedStep Text
+newtype ScrapedStep = ScrapedStep { unScrapedStep :: Text }
   deriving (Eq, Ord, Show)
 
 data IngredientScraper = IngredientScraper

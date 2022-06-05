@@ -5,6 +5,7 @@ module Chez.Grater.Internal.Prelude
   , module Control.Exception
   , module Control.Monad
   , module Data.CaseInsensitive
+  , module Data.Foldable
   , module Data.HashMap.Strict
   , module Data.List
   , module Data.Map.Strict
@@ -21,6 +22,7 @@ import Control.Exception (Exception, throwIO)
 import Control.Monad (replicateM, void)
 import Data.CaseInsensitive (CI)
 import Data.Containers.ListUtils (nubOrd)
+import Data.Foldable (toList, traverse_)
 import Data.HashMap.Strict (HashMap)
 import Data.List (find, groupBy, sortBy, sortOn)
 import Data.Map.Strict (Map)
