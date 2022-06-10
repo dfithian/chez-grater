@@ -2,16 +2,18 @@ import Chez.Grater.Internal.Prelude
 
 import Chez.Grater (scrapeAndParseUrl, scrapeUrl)
 import Chez.Grater.Manager (createManager)
-import Chez.Grater.Parser (mkIngredients)
-import Chez.Grater.Readable.Types (mkReadableIngredient, showReadableIngredient)
+import Chez.Grater.Parser (mkIngredients, quantityP, runParser)
+import Chez.Grater.Parser.Types (ParsedQuantity(..))
+import Chez.Grater.Readable.Types (mkReadableIngredient, mkReadableQuantity, showReadableIngredient, showReadableQuantity)
 import Chez.Grater.Scraper.Site (allScrapers)
 import Chez.Grater.Scraper.Types (ScrapedIngredient(..), ScrapedRecipeName(..), ScrapedStep(..))
-import Chez.Grater.Types (Ingredient(..), RecipeName(..), Step(..))
+import Chez.Grater.Types (unIngredientName, Ingredient(..), IngredientName(..), Quantity(..), RecipeName(..), Step(..))
 import Data.Aeson ((.=), object)
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Network.URI (parseURI)
 import Options.Applicative ((<**>))
 import qualified Data.ByteString.Lazy.Char8 as LC8
+import qualified Data.CaseInsensitive as CI
 import qualified Data.Text as Text
 import qualified Options.Applicative as Opt
 
@@ -26,6 +28,7 @@ instance Show Output where
 data Opts = Opts
   { optsUrl :: String
   , optsNoParse :: Bool
+  , optsScale :: Maybe Double
   , optsOutput :: Output
   }
 
@@ -40,6 +43,13 @@ parseArgs = Opt.execParser (Opt.info (parser <**> Opt.helper) (Opt.progDesc "Scr
         ( Opt.long "no-parse"
             <> Opt.help "Don't parse the recipe"
         )
+      <*> Opt.option readScale
+        ( Opt.short 's'
+            <> Opt.long "scale"
+            <> Opt.value Nothing
+            <> Opt.showDefault
+            <> Opt.help "Adjust ingredient quantities"
+        )
       <*> Opt.option readOutput
         ( Opt.short 'o'
             <> Opt.long "output"
@@ -51,6 +61,27 @@ parseArgs = Opt.execParser (Opt.info (parser <**> Opt.helper) (Opt.progDesc "Scr
       "text" -> Just OutputText
       "json" -> Just OutputJson
       _ -> Nothing
+    readScale = Opt.eitherReader $ \str ->
+      case (runParser quantityP . Text.pack) str of
+        Right (ParsedQuantity 1) -> Right Nothing
+        Right (ParsedQuantity q) -> Right (Just q)
+        Right _ -> Left "Expected numeric quantity"
+        Left err -> Left err
+
+scaleIngredientBy :: Double -> Ingredient -> Ingredient
+scaleIngredientBy scale (Ingredient name quantity unit) =
+  case quantity of
+    Quantity q ->
+      Ingredient name (Quantity (q*scale)) unit
+    QuantityMissing ->
+      Ingredient
+        (IngredientName . (prefix <>) . unIngredientName $ name)
+        quantity
+        unit
+  where
+    prefix = case (showReadableQuantity . mkReadableQuantity . Quantity) scale of
+      Just str -> CI.mk $ "(" <> str <> "x) "  -- FIXME: should be "×" but unicode 😵‍💫
+      Nothing -> ""
 
 showRecipe :: RecipeName -> [Ingredient] -> [Step] -> IO ()
 showRecipe (RecipeName name) ingredients steps = do
@@ -88,4 +119,5 @@ main = do
         (fmap (Step . unScrapedStep) steps)
     False -> do
       (name, ingredients, steps, _) <- scrapeAndParseUrl allScrapers manager url
-      renderRecipe optsOutput name ingredients steps
+      let scaledIngredients :: [Ingredient] = (maybe id (fmap . scaleIngredientBy) optsScale) ingredients
+      renderRecipe optsOutput name scaledIngredients steps
