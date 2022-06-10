@@ -9,6 +9,7 @@ import Chez.Grater.Types (Ingredient(..), IngredientName(..), Quantity(..), Unit
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Aeson.TH (deriveJSON)
 import qualified Data.CaseInsensitive as CI
+import Data.Ratio (approxRational, denominator, numerator)
 
 data ReadableFraction = ReadableFraction
   { readableFractionNumerator   :: Int
@@ -37,42 +38,20 @@ deriveJSON (jsonOptions "readableQuantity") ''ReadableQuantity
 deriveJSON (jsonOptions "readableIngredient") ''ReadableIngredient
 
 mkReadableQuantity :: Quantity -> ReadableQuantity
-mkReadableQuantity q = case splitQuantity q of
-  Nothing -> ReadableQuantity Nothing Nothing
-  Just (w, d) ->
-    case (w == 0, find (\((lo, hi), _) -> lo <= d && d <= hi) knownQuantities) of
-      (False, Just (_, (numerator, denominator))) -> ReadableQuantity (Just w) (Just (ReadableFraction numerator denominator))
-      (True, Just (_, (numerator, denominator))) -> ReadableQuantity Nothing (Just (ReadableFraction numerator denominator))
-      (False, Nothing) -> ReadableQuantity (Just w) Nothing
-      (True, Nothing) -> ReadableQuantity Nothing Nothing
+mkReadableQuantity = \case
+  QuantityMissing -> ReadableQuantity Nothing Nothing
+  Quantity q ->
+    ReadableQuantity
+      (if whole == 0 then Nothing else Just whole)
+      (if numer == 0 then Nothing else Just (ReadableFraction numer denom))
+    where
+      (whole, numer) = divMod rawNumer denom
 
-  where
+      rawNumer = fromIntegral $ numerator nearest
+      denom = fromIntegral $ denominator nearest
 
-    quantityPrecision :: Double
-    quantityPrecision = 0.01
-
-    quarter = 0.25
-    third = 1 / 3
-    half = 0.5
-    twoThird = 2 / 3
-    threeQuarter = 0.75
-
-    knownQuantities :: [((Double, Double), (Int, Int))]
-    knownQuantities =
-      [ ((quarter - quantityPrecision, quarter + quantityPrecision), (1, 4))
-      , ((third - quantityPrecision, third + quantityPrecision), (1, 3))
-      , ((half - quantityPrecision, half + quantityPrecision), (1, 2))
-      , ((twoThird - quantityPrecision, twoThird + quantityPrecision), (2, 3))
-      , ((threeQuarter - quantityPrecision, threeQuarter + quantityPrecision), (3, 4))
-      ]
-
-    splitQuantity :: Quantity -> Maybe (Int, Double)
-    splitQuantity = \case
-      QuantityMissing -> Nothing
-      Quantity q2 ->
-        case abs (fromIntegral (round q2 :: Int) - q2) < quantityPrecision of
-          True -> Just (round q2, 0.0)
-          False -> let w = truncate q2 in Just (w, q2 - fromIntegral w)
+      -- keep the denominator within reason; less than about 500:
+      nearest = approxRational q 0.001
 
 showReadableQuantity :: ReadableQuantity -> Maybe Text
 showReadableQuantity ReadableQuantity {..} =

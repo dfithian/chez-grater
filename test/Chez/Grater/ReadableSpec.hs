@@ -23,9 +23,12 @@ spec = describe "Readable" $ do
     it "shows 3/8" $
       (showReadableQuantity . mkReadableQuantity) (Quantity 0.375)
         `shouldBe` Just "3/8"
-    it "shows some other odd quantity" $
-      (showReadableQuantity . mkReadableQuantity) (Quantity 7/11)
-        `shouldBe` Just "0.636"
+    it "shows 7/9" $
+      (showReadableQuantity . mkReadableQuantity) (Quantity 7/9)
+        `shouldBe` Just "7/9"
+    it "shows (an approximation of) 1 13/100" $
+      (showReadableQuantity . mkReadableQuantity) (Quantity 113/100)
+        `shouldBe` Just "1 3/23"
 
     it "can't show missing" $
       (showReadableQuantity . mkReadableQuantity) QuantityMissing
