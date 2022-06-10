@@ -121,6 +121,7 @@ test-suite tests
   main-is: main.hs
   other-modules:
       Chez.Grater.ParserSpec
+      Chez.Grater.ReadableSpec
       Chez.Grater.TestEnv
       Chez.GraterSpec
       Paths_chez_grater
