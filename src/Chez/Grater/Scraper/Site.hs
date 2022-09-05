@@ -24,9 +24,10 @@ ingredientScrapers = HashMap.fromList
 
   , ("cooking.nytimes.com", nytimesI)
 
-  , ("food.com", geniusKitchen2I)
-  , ("geniuskitchen.com", geniusKitchen1I)
-  , ("tasteofhome.com", geniusKitchen1I)
+  , ("food.com", foodI)
+
+  , ("geniuskitchen.com", geniusKitchenI)
+  , ("tasteofhome.com", geniusKitchenI)
 
   , ("rachlmansfield.com", tastyI2)
   , ("cookieandkate.com", tastyI1)
@@ -82,7 +83,8 @@ ingredientScrapers = HashMap.fromList
   , ("smittenkitchen.com", jetpackI)
 
   , ("eatingwell.com", eatingWellI)
-  , ("bhg.com", eatingWellI)
+
+  , ("bhg.com", bhgI)
 
   , ("yummly.com", yummlyI)
 
@@ -128,9 +130,10 @@ stepScrapers = HashMap.fromList
 
   , ("cooking.nytimes.com", nytimesS)
 
-  , ("food.com", geniusKitchen2S)
-  , ("geniuskitchen.com", geniusKitchen1S)
-  , ("tasteofhome.com", geniusKitchen1S)
+  , ("food.com", foodS)
+
+  , ("geniuskitchen.com", geniusKitchenS)
+  , ("tasteofhome.com", geniusKitchenS)
 
   , ("rachlmansfield.com", tastyS1)
   , ("cookieandkate.com", tastyS1)
@@ -187,7 +190,8 @@ stepScrapers = HashMap.fromList
   , ("smittenkitchen.com", jetpackS)
 
   , ("eatingwell.com", eatingWellS)
-  , ("bhg.com", eatingWellS)
+
+  , ("bhg.com", bhgS)
 
   , ("yummly.com", yummlyS)
 
@@ -286,25 +290,25 @@ nytimesS = simpleStepScraper "nytimes"
   (testScrape ("meta" @: ["content" @= "NYT Cooking"]))
   ("ol" @: [Scalpel.hasClass "recipe-steps"] // "li")
 
-geniusKitchen1I :: IngredientScraper
-geniusKitchen1I = setIngredientVersion 2 $ simpleIngredientScraper "geniusKitchen1"
+foodI :: IngredientScraper
+foodI = simpleIngredientScraper "food"
+  (testScrape ("ul" @: [Scalpel.hasClass "ingredient-list"]))
+  ("ul" @: [Scalpel.hasClass "ingredient-list"] // "li")
+
+foodS :: StepScraper
+foodS = simpleStepScraper "food"
+  (testScrape ("ul" @: [Scalpel.hasClass "direction-list"]))
+  ("ul" @: [Scalpel.hasClass "direction-list"] // "li")
+
+geniusKitchenI :: IngredientScraper
+geniusKitchenI = setIngredientVersion 2 $ simpleIngredientScraper "geniusKitchen"
   (testScrape ("div" @: [Scalpel.hasClass "recipe-ingredients"]))
   ("div" @: [Scalpel.hasClass "recipe-ingredients"] // "li")
 
-geniusKitchen2I :: IngredientScraper
-geniusKitchen2I = setIngredientVersion 2 $ simpleIngredientScraper "geniusKitchen2"
-  (testScrape ("ul" @: [Scalpel.hasClass "ingredients"]))
-  ("ul" @: [Scalpel.hasClass "ingredients"] // "li")
-
-geniusKitchen1S :: StepScraper
-geniusKitchen1S = setStepVersion 2 $ simpleStepScraper "geniusKitchen1"
+geniusKitchenS :: StepScraper
+geniusKitchenS = setStepVersion 2 $ simpleStepScraper "geniusKitchen"
   (testScrape ("div" @: [Scalpel.hasClass "recipe-directions"]))
   ("div" @: [Scalpel.hasClass "recipe-directions"] // "li")
-
-geniusKitchen2S :: StepScraper
-geniusKitchen2S = setStepVersion 2 $ simpleStepScraper "geniusKitchen2"
-  (testScrape ("ul" @: [Scalpel.hasClass "directions"]))
-  ("ul" @: [Scalpel.hasClass "directions"] // "li")
 
 tastyI1 :: IngredientScraper
 tastyI1 = simpleIngredientScraper "tasty1"
@@ -408,6 +412,16 @@ eatingWellS :: StepScraper
 eatingWellS = simpleStepScraper "eatingWell"
   (testScrape ("ul" @: [Scalpel.hasClass "instructions-section"]))
   ("ul" @: [Scalpel.hasClass "instructions-section"] // "li" // "p")
+
+bhgI :: IngredientScraper
+bhgI = simpleIngredientScraper "bhg"
+  (testScrape ("div" @: [Scalpel.hasClass "mntl-structured-ingredients"]))
+  ("div" @: [Scalpel.hasClass "mntl-structured-ingredients"] // "li")
+
+bhgS :: StepScraper
+bhgS = simpleStepScraper "bhg"
+  (testScrape ("div" @: [Scalpel.hasClass "recipe__steps-content"]))
+  ("div" @: [Scalpel.hasClass "recipe__steps-content"] // "li")
 
 yummlyI :: IngredientScraper
 yummlyI = simpleIngredientScraper "yummly"
