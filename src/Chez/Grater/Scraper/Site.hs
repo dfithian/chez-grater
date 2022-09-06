@@ -10,7 +10,7 @@ import Chez.Grater.Scraper.Types
   , ScrapedStep(..), Scrapers(..), SiteName(..), StepScraper(..), inception
   )
 import Data.Function (on)
-import Text.HTML.Scalpel ((//), (@:), (@=), Scraper, Selector)
+import Text.HTML.Scalpel ((//), (@:), (@=), AttributePredicate, Scraper, Selector)
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 import qualified Text.HTML.Scalpel as Scalpel
@@ -264,6 +264,11 @@ simpleStepScraper sName test select = StepScraper (ScrapeMeta (ScrapeName sName)
         <$> Scalpel.text Scalpel.anySelector
       )
 
+hasClassPrefix :: String -> AttributePredicate
+hasClassPrefix prefix = Scalpel.match $ \k v -> case k of
+  "class" -> any (Text.isPrefixOf (Text.pack prefix)) . Text.splitOn " " . Text.pack $ v
+  _ -> False
+
 debugI :: IngredientScraper
 debugI = simpleIngredientScraper "debug" (testScrape "div") "div"
 
@@ -281,14 +286,14 @@ allrecipesS = simpleStepScraper "allrecipes"
   ("ul" @: [Scalpel.hasClass "instructions-section"] // "div" @: [Scalpel.hasClass "section-body"])
 
 nytimesI :: IngredientScraper
-nytimesI = simpleIngredientScraper "nytimes"
+nytimesI = setIngredientVersion 2 $ simpleIngredientScraper "nytimes"
   (testScrape ("meta" @: ["content" @= "NYT Cooking"]))
-  ("ul" @: [Scalpel.hasClass "recipe-ingredients"] // "li")
+  ("div" @: [hasClassPrefix "ingredients_ingredients"] // "li")
 
 nytimesS :: StepScraper
-nytimesS = simpleStepScraper "nytimes"
+nytimesS = setStepVersion 2 $ simpleStepScraper "nytimes"
   (testScrape ("meta" @: ["content" @= "NYT Cooking"]))
-  ("ol" @: [Scalpel.hasClass "recipe-steps"] // "li")
+  ("ol" @: [hasClassPrefix "preparation_steps"] // "li")
 
 foodI :: IngredientScraper
 foodI = simpleIngredientScraper "food"
