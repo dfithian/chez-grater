@@ -140,9 +140,7 @@ quantityP = quantityExpression <|> quantityWord <|> quantityMissing
 
     quantityExpression = ParsedQuantity <$> (strictQuantityParser quantitySimple <|> quantityImproper)
     quantityWord = ParsedQuantityWord . CI.mk <$> ((\str -> if CI.mk str `elem` Map.keys quantityAliasTable then pure str else fail $ Text.unpack str <> " is not a quantity") =<< spaced (Atto.takeWhile1 isAlpha))
-    quantityMissing = quantityParser $ \str -> case Text.null str of
-      True -> pure ParsedQuantityMissing
-      False -> fail $ Text.unpack str <> " is a quantity, but thought it was missing"
+    quantityMissing = pure ParsedQuantityMissing
 
 spaced :: Atto.Parser a -> Atto.Parser a
 spaced p = optional (void Atto.space) *> (p <* optional (void Atto.space))
@@ -189,7 +187,7 @@ parseScrapedIngredients xs = do
   let parseOne = \case
         ScrapedIngredient raw | Text.null raw -> pure Nothing
         ScrapedIngredient raw -> Just <$> runParser ingredientP raw
-  ingredients <- left (const "Failed to parse ingredients")
+  ingredients <- left (\err -> "Failed to parse " <> tshow xs <> "\n" <> Text.pack err)
     . fmap (nubOrd . fmap scrubIngredient . catMaybes)
     $ for xs parseOne
   requireNonEmpty "ingredients" ingredients

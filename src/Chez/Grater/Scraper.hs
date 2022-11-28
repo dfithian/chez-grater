@@ -24,19 +24,18 @@ scrape mkName runIngredientParser runStepParser scrapers manager uri = do
   let domainMay = SiteName . Text.replace "www." "" . Text.pack . uriRegName <$> uriAuthority uri
       name = fromMaybe (ScrapedRecipeName "Untitled") $ Scalpel.scrape title tags
 
-      runScraper :: forall a b. ([a] -> Either Text [b]) -> Scalpel.Scraper Text [a] -> Maybe [b]
-      runScraper parser scraper = either (const Nothing) Just . parser =<< Scalpel.scrape scraper tags
+      runScraper :: forall a b. ([a] -> Either Text [b]) -> Scalpel.Scraper Text [a] -> Either Text [b]
+      runScraper parser scraper = parser =<< maybe (Left "Nothing scraped") pure (Scalpel.scrape scraper tags)
 
       goIngredient IngredientScraper {..} = case Scalpel.scrape ingredientScraperTest tags of
-        Just True -> (,ingredientScraperMeta) <$> runScraper runIngredientParser ingredientScraperRun
+        Just True -> (,ingredientScraperMeta) <$> either (const Nothing) Just (runScraper runIngredientParser ingredientScraperRun)
         _ -> Nothing
       goStep StepScraper {..} = case Scalpel.scrape stepScraperTest tags of
-        Just True -> (,stepScraperMeta) <$> runScraper runStepParser stepScraperRun
+        Just True -> (,stepScraperMeta) <$> either (const Nothing) Just (runScraper runStepParser stepScraperRun)
         _ -> Nothing
 
   (ingredients, ingredientMeta) <- case flip HashMap.lookup (scrapersIngredientBySite scrapers) =<< domainMay of
-    Just IngredientScraper {..} -> maybe (throwIO $ ScrapeError "Failed to scrape known URL") (pure . (,ingredientScraperMeta)) $
-      runScraper runIngredientParser ingredientScraperRun
+    Just IngredientScraper {..} -> either (throwIO . ScrapeError) (pure . (,ingredientScraperMeta)) $ runScraper runIngredientParser ingredientScraperRun
     Nothing -> maybe (throwIO $ ScrapeError "Failed to scrape URL from defaults") pure
      . lastMay
      . sortOn (length . fst)
@@ -44,7 +43,7 @@ scrape mkName runIngredientParser runStepParser scrapers manager uri = do
      . scrapersIngredients
      $ scrapers
   stepsMay <- case flip HashMap.lookup (scrapersStepBySite scrapers) =<< domainMay of
-    Just StepScraper {..} -> pure . fmap (,stepScraperMeta) . runScraper runStepParser $ stepScraperRun
+    Just StepScraper {..} -> pure . fmap (,stepScraperMeta) . either (const Nothing) Just . runScraper runStepParser $ stepScraperRun
     Nothing -> pure
       . lastMay
       . sortOn (length . fst)

@@ -80,3 +80,9 @@ title = ScrapedRecipeName . Text.strip <$> Scalpel.text "title"
 
 inception :: ScrapeVersion
 inception = ScrapeVersion 1
+
+hasClassPrefix :: Text -> Scalpel.AttributePredicate
+hasClassPrefix cls =
+  Scalpel.match $ \case
+    "class" -> \classes -> any (\cls' -> cls `Text.isPrefixOf` cls') . Text.split ((==) ' ') . Text.pack $ classes
+    _ -> const False

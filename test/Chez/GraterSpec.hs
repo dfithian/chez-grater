@@ -89,7 +89,7 @@ spec env = describe "Scrape" $ do
       scrapeAndParse
         env
         "https://www.allrecipes.com/recipe/26317/chicken-pot-pie-ix/"
-        "Chicken Pot Pie Recipe | Allrecipes"
+        "Chicken Pot Pie Recipe"
         (allRecipesIngredients, allRecipesSteps)
 
     it "can parse food" $
