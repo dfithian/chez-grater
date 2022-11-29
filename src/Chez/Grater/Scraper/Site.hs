@@ -36,8 +36,8 @@ ingredientScrapers = HashMap.fromList
   , ("gimmesomeoven.com", tastyI2)
   , ("pinchofyum.com", tastyI2)
   , ("alexandracooks.com", tastyI3)
-  , ("naturallyella.com", tastyI3)
   , ("brownedbutterblondie.com", tastyI3)
+  , ("naturallyella.com", tastyI4)
 
   , ("foodnetwork.com", foodNetworkI)
 
@@ -138,11 +138,11 @@ stepScrapers = HashMap.fromList
   , ("cookieandkate.com", tastyS1)
   , ("eatyourselfskinny.com", tastyS1)
   , ("lexiscleankitchen.com", tastyS1)
+  , ("naturallyella.com", tastyS1)
   , ("sallysbakingaddiction.com", tastyS2)
   , ("gimmesomeoven.com", tastyS2)
   , ("pinchofyum.com", tastyS2)
   , ("alexandracooks.com", tastyS2)
-  , ("naturallyella.com", tastyS2)
   , ("brownedbutterblondie.com", tastyS3)
   , ("simple-veganista.com", tastyS4)
 
@@ -315,6 +315,11 @@ tastyI3 :: IngredientScraper
 tastyI3 = simpleIngredientScraper "tasty3"
   (testScrape ("div" @: [Scalpel.hasClass "tasty-recipes-ingredients"]))
   ("div" @: [Scalpel.hasClass "tasty-recipes-ingredients"] // "p")
+
+tastyI4 :: IngredientScraper
+tastyI4 = simpleIngredientScraper "tasty4"
+  (testScrape ("div" @: [Scalpel.hasClass "tasty-recipe-ingredients"]))
+  ("div" @: [Scalpel.hasClass "tasty-recipe-ingredients"] // "p")
 
 tastyS1 :: StepScraper
 tastyS1 = simpleStepScraper "tasty1"
