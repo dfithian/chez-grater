@@ -4,13 +4,6 @@ import Chez.Grater.Internal.Prelude
 
 import Chez.Grater.Scraper.Site (allScrapers)
 import Chez.Grater.Scraper.Types ()
-import Chez.Grater.Test.ParsedIngredients
-  ( allRecipesIngredients, allRecipesSteps, bettyCrockerIngredients, bettyCrockerSteps
-  , cafeDelitesIngredients, cafeDelitesSteps, eatingWellIngredients, eatingWellSteps
-  , foodIngredients, foodNetworkIngredients, foodNetworkSteps, foodSteps, pillsburyIngredients
-  , pillsburySteps, rachelMansfieldIngredients, rachelMansfieldSteps, sallysBakingIngredients
-  , sallysBakingSteps, tasteOfHomeIngredients, tasteOfHomeSteps
-  )
 import Chez.Grater.TestEnv (Env(..))
 import Chez.Grater.Types
   ( Ingredient(..), IngredientName(..), Quantity(..), RecipeName(..), Step(..), Unit(..)
@@ -84,77 +77,6 @@ scrapeAndParseConfig TestCfg {..} url = do
 spec :: Env -> Spec
 spec env = describe "Scrape" $ do
   let defCfg = defaultTestCfg env
-  describe "Examples" $ do
-    it "can parse allrecipes" $
-      scrapeAndParse
-        env
-        "https://www.allrecipes.com/recipe/26317/chicken-pot-pie-ix/"
-        "Chicken Pot Pie Recipe"
-        (allRecipesIngredients, allRecipesSteps)
-
-    it "can parse food" $
-      scrapeAndParse
-        env
-        "https://www.food.com/recipe/hearty-tuscan-white-bean-soup-192495"
-        "Hearty Tuscan White Bean Soup Recipe - Food.com"
-        (foodIngredients, foodSteps)
-
-    it "can parse pillsbury" $
-      scrapeAndParse
-        env
-        "https://www.pillsbury.com/recipes/classic-chicken-pot-pie/1401d418-ac0b-4b50-ad09-c6f1243fb992"
-        "Classic Chicken Pot Pie Recipe - Pillsbury.com"
-        (pillsburyIngredients, pillsburySteps)
-
-    it "can parse betty crocker" $
-      scrapeAndParse
-        env
-        "https://www.bettycrocker.com/recipes/mississippi-mud-brownies/dff02c0e-695b-4b01-90fd-7071ddb84457"
-        "Mississippi Mud Brownies Recipe - BettyCrocker.com"
-        (bettyCrockerIngredients, bettyCrockerSteps)
-
-    it "can parse taste of home" $
-      scrapeAndParse
-        env
-        "https://www.tasteofhome.com/recipes/favorite-chicken-potpie/"
-        "Favorite Chicken Potpie Recipe: How to Make It"
-        (tasteOfHomeIngredients, tasteOfHomeSteps)
-
-    it "can parse rachel mansfield" $
-      scrapeAndParse
-        env
-        "https://rachlmansfield.com/paleo-chocolate-chip-banana-bread/"
-        "Paleo Chocolate Chip Banana Bread (Nut Free) - rachLmansfield"
-        (rachelMansfieldIngredients, rachelMansfieldSteps)
-
-    it "can parse food network" $
-      scrapeAndParse
-        env
-        "https://www.foodnetwork.com/recipes/ina-garten/perfect-roast-chicken-recipe-1940592"
-        "Perfect Roast Chicken Recipe | Ina Garten | Food Network"
-        (foodNetworkIngredients, foodNetworkSteps)
-
-    it "can parse sallys baking" $
-      scrapeAndParse
-        env
-        "https://sallysbakingaddiction.com/chocolate-lava-cakes/"
-        "How to Make Chocolate Lava Cakes - Sally's Baking Addiction"
-        (sallysBakingIngredients, sallysBakingSteps)
-
-    it "can parse cafe delites" $
-      scrapeAndParse
-        env
-        "https://cafedelites.com/chicken-tikka-masala/"
-        "Chicken Tikka Masala - Cafe Delites"
-        (cafeDelitesIngredients, cafeDelitesSteps)
-
-    it "can parse eatingwell" $
-      scrapeAndParse
-        env
-        "https://www.eatingwell.com/recipe/7898240/baked-spinach-feta-pasta/"
-        "Baked Spinach & Feta Pasta Recipe | EatingWell"
-        (eatingWellIngredients, eatingWellSteps)
-
   describe "Smoke Test" $ do
     it "handles nytimes" $ scrapeAndParseConfig defCfg "https://cooking.nytimes.com/recipes/1017256-french-onion-soup"
     it "handles yummly" $ scrapeAndParseConfig defCfg "https://www.yummly.com/recipe/Barbecue-Baked-Chicken-Legs-9073054"
