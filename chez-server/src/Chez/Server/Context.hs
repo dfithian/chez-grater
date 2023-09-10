@@ -9,8 +9,7 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Logger
   ( Loc, LogLevel, LogSource, LogStr, LoggingT, MonadLoggerIO, logError, runStdoutLoggingT
   )
-import Control.Monad.Reader (MonadReader)
-import Control.Monad.Trans.Reader (ReaderT, runReaderT)
+import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
 import Data.ByteString (ByteString)
 import Network.HTTP.Client (Manager, managerModifyRequest, requestHeaders)
 import Network.HTTP.Client.TLS (newTlsManagerWith, tlsManagerSettings)
