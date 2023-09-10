@@ -4,12 +4,12 @@ import Chez.Grater.Internal.Prelude
 
 import Chez.Grater (scrapeAndParseUrl)
 import Chez.Grater.Parser (mkIngredients, parseRawIngredients)
+import Chez.Grater.Readable.Types (mkReadableIngredient, mkReadableStep)
 import Chez.Grater.Scraper.Site (allScrapers)
 import Chez.Server.Context (ChezContext(..), ChezM, logErrors)
-import Chez.Server.Conversion (mkReadableIngredient, mkReadableStep)
 import Chez.Server.Types
-  ( OrderedIngredient(..), ParseBlobRequest(..), ParseBlobResponse(..), ParseLinkRequest(..)
-  , ParseLinkResponse(..), RecipeLink(..), ScrapedRecipe(..)
+  ( ParseBlobRequest(..), ParseBlobResponse(..), ParseLinkRequest(..), ParseLinkResponse(..)
+  , RecipeLink(..), ScrapedRecipe(..)
   )
 import Control.Monad.Catch (throwM)
 import Control.Monad.IO.Class (liftIO)
@@ -36,7 +36,7 @@ postParseBlob ParseBlobRequest {..} = do
       pure $ mkIngredients parseBlobRequestContent
     Right is -> pure is
   pure ParseBlobResponse
-    { parseBlobResponseIngredients = mkReadableIngredient <$> zipWith OrderedIngredient ingredients [1..]
+    { parseBlobResponseIngredients = mkReadableIngredient <$> ingredients
     }
 
 postParseLink :: ChezM m => ParseLinkRequest -> m ParseLinkResponse
@@ -44,6 +44,6 @@ postParseLink ParseLinkRequest {..} = do
   ScrapedRecipe {..} <- scrapeUrl parseLinkRequestLink
   pure ParseLinkResponse
     { parseLinkResponseName = scrapedRecipeName
-    , parseLinkResponseIngredients = mkReadableIngredient <$> zipWith OrderedIngredient scrapedRecipeIngredients [1..]
+    , parseLinkResponseIngredients = mkReadableIngredient <$> scrapedRecipeIngredients
     , parseLinkResponseSteps = mkReadableStep <$> scrapedRecipeSteps
     }

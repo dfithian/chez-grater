@@ -1,4 +1,4 @@
-module Chez.Server.ConversionSpec where
+module Chez.Grater.ConversionSpec where
 
 import Chez.Grater.Internal.Prelude
 
@@ -7,20 +7,16 @@ import Chez.Grater.Test.ParsedIngredients
   , pureIngredientNoUnit
   )
 import Chez.Grater.Types (Unit(..), cup, ounce, pinch, tablespoon, teaspoon, whole)
-import Chez.Server.Combinable (Constant(..))
 import Data.Monoid (Sum(..))
 import Test.Hspec (Spec, describe, it, shouldBe, shouldMatchList)
 import Test.QuickCheck (forAll, shuffle)
 import qualified Data.Map.Strict as Map
 
 -- the module being tested
-import Chez.Server.Conversion
+import Chez.Grater.Conversion
 
 allUnits :: [Unit]
 allUnits = [ounce, cup, tablespoon, teaspoon, pinch, Unit "none", whole]
-
-mkC :: Int -> Constant Int
-mkC = Constant
 
 spec :: Spec
 spec = describe "Conversion" $ do
@@ -30,13 +26,13 @@ spec = describe "Conversion" $ do
     it "orders correctly" $ forAll (shuffle allUnits) $ \xs ->
       sortBy unitOrdering xs `shouldBe` allUnits
     it "combines quantities - cup equivalent to ounce" $
-      combineQuantities (Map.fromList [(cup, (Sum 8, mkC 1)), (ounce, (Sum 1, mkC 2))]) `shouldBe` Map.fromList [(ounce, (Sum 2, mkC 1))]
+      combineQuantities (Map.fromList [(cup, Sum 8), (ounce, Sum 1)]) `shouldBe` Map.fromList [(ounce, Sum 2)]
     it "combines quantities - cup less than ounce" $
-      combineQuantities (Map.fromList [(cup, (Sum 4, mkC 1)), (ounce, (Sum 1, mkC 2))]) `shouldBe` Map.fromList [(ounce, (Sum 1.5, mkC 1))]
+      combineQuantities (Map.fromList [(cup, Sum 4), (ounce, Sum 1)]) `shouldBe` Map.fromList [(ounce, Sum 1.5)]
     it "combines quantities - teaspoons to tablespoons to cups" $
-      combineQuantities (Map.fromList [(teaspoon, (Sum 2, mkC 1)), (tablespoon, (Sum 2, mkC 2)), (cup, (Sum 4, mkC 3))]) `shouldBe` Map.fromList [(cup, (Sum 4.25, mkC 1))]
+      combineQuantities (Map.fromList [(teaspoon, Sum 2), (tablespoon, Sum 2), (cup, Sum 4)]) `shouldBe` Map.fromList [(cup, Sum 4.25)]
     it "retains quantities not in known conversions" $
-      combineQuantities (Map.fromList [(ounce, (Sum 1, mkC 1)), (whole, (Sum 1, mkC 2))]) `shouldBe` Map.fromList [(ounce, (Sum 1, mkC 1)), (whole, (Sum 1, mkC 2))]
+      combineQuantities (Map.fromList [(ounce, Sum 1), (whole, Sum 1)]) `shouldBe` Map.fromList [(ounce, Sum 1), (whole, Sum 1)]
 
   describe "Ingredients" $ do
     it "combines ingredients" $

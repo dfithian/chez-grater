@@ -1,18 +1,13 @@
-module Chez.Server.Conversion where
+module Chez.Grater.Conversion where
 
 import Chez.Grater.Internal.Prelude
 
-import Chez.Grater.Readable.Types
-  ( ReadableFraction(..), ReadableQuantity(..), ReadableUnit(..), mkReadableQuantity, mkReadableUnit
-  )
+import Chez.Grater.Readable.Types (ReadableFraction(..), ReadableQuantity(..), ReadableUnit(..))
 import Chez.Grater.Types
-  ( Ingredient(..), Quantity(..), Step(..), Unit(..), cup, gram, liter, milligram, milliliter, ounce
-  , pinch, tablespoon, teaspoon
+  ( Ingredient(..), Quantity(..), Unit(..), cup, gram, liter, milligram, milliliter, ounce, pinch
+  , tablespoon, teaspoon
   )
-import Chez.Server.Combinable (Constant(..), Combinable)
-import Chez.Server.Types (OrderedIngredient(..), ReadableIngredient(..), ReadableStep(..))
 import Data.Monoid (Sum(..))
-import qualified Chez.Server.Combinable as C
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 
@@ -59,36 +54,30 @@ unitOrdering x y = case (Map.lookup x knownUnitOrdering, Map.lookup y knownUnitO
   (Nothing, Just _) -> GT
   (Nothing, Nothing) -> compare x y
 
-wrapSidecar :: (Quantity, a) -> (Sum Quantity, Constant a)
-wrapSidecar (x, y) = (Sum x, Constant y)
-
-unwrapSidecar :: (Sum Quantity, Constant a) -> (Quantity, a)
-unwrapSidecar (Sum x, Constant y) = (x, y)
-
-combineQuantities :: Map Unit (Sum Quantity, Constant a) -> Map Unit (Sum Quantity, Constant a)
+combineQuantities :: Map Unit (Sum Quantity) -> Map Unit (Sum Quantity)
 combineQuantities = foldr go mempty . reverse . sortBy (\(x, _) (y, _) -> unitOrdering x y) . Map.toList
   where
-    go (nextUnit, (nextQuantity, nextSidecar)) acc = case Map.lookup nextUnit acc of
-      Just (existingQuantity, existingSidecar) -> Map.insert nextUnit (nextQuantity <> existingQuantity, nextSidecar <> existingSidecar) acc
+    go (nextUnit, nextQuantity) acc = case Map.lookup nextUnit acc of
+      Just existingQuantity -> Map.insert nextUnit (nextQuantity <> existingQuantity) acc
       Nothing ->
         let allConversions = getAllConversions nextUnit
             allConversionsKeys = Map.keysSet allConversions
             existingKeys = Map.keysSet acc
             overlappingKeys = headMay . sortBy unitOrdering . Set.toList . Set.intersection allConversionsKeys $ existingKeys
         in case overlappingKeys of
-          Nothing -> Map.insert nextUnit (nextQuantity, nextSidecar) acc
-          Just existingKey -> Map.insertWith (<>) existingKey (Sum $ getSum nextQuantity * Map.findWithDefault 1 existingKey allConversions, nextSidecar) acc
+          Nothing -> Map.insert nextUnit nextQuantity acc
+          Just existingKey -> Map.insertWith (<>) existingKey (Sum $ getSum nextQuantity * Map.findWithDefault 1 existingKey allConversions) acc
 
-combineItems :: Combinable a => [a] -> [a]
+combineItems :: [Ingredient] -> [Ingredient]
 combineItems =
   mconcat
-    . fmap (\(name, everythingElse) -> fmap (\(unit, (quantity, sidecar)) -> C.orig (name, quantity, unit, sidecar)) $ Map.toList everythingElse)
+    . fmap (\(ingredientName, everythingElse) -> fmap (\(ingredientUnit, ingredientQuantity) -> Ingredient {..}) $ Map.toList everythingElse)
     . Map.toList
-    . fmap (fmap unwrapSidecar . combineQuantities . foldr (uncurry (Map.insertWith (<>))) mempty . fmap (second wrapSidecar))
+    . fmap (fmap getSum . combineQuantities . foldr (uncurry (Map.insertWith (<>))) mempty . fmap (second Sum))
     . Map.unionsWith (<>)
     . fmap ( \x ->
-        let (name, quantity, unit, sidecar) = C.mk x
-        in Map.singleton name [(unit, (quantity, sidecar))]
+        let Ingredient {..} = x
+        in Map.singleton ingredientName [(ingredientUnit, ingredientQuantity)]
       )
 
 mkQuantity :: ReadableQuantity -> Quantity
@@ -104,26 +93,3 @@ mkUnit :: Maybe ReadableUnit -> Unit
 mkUnit = \case
   Just (ReadableUnit x) | x /= "" -> Unit x
   _ -> UnitMissing
-
-mkReadableIngredient :: OrderedIngredient -> ReadableIngredient
-mkReadableIngredient OrderedIngredient {..} = ReadableIngredient
-  { readableIngredientName = ingredientName
-  , readableIngredientQuantity = mkReadableQuantity ingredientQuantity
-  , readableIngredientUnit = mkReadableUnit ingredientUnit
-  , readableIngredientOrder = orderedIngredientOrder
-  }
-  where
-    Ingredient {..} = orderedIngredientIngredient
-
-mkOrderedIngredient :: ReadableIngredient -> OrderedIngredient
-mkOrderedIngredient ReadableIngredient {..} = OrderedIngredient
-  { orderedIngredientIngredient = Ingredient
-    { ingredientName = readableIngredientName
-    , ingredientQuantity = mkQuantity readableIngredientQuantity
-    , ingredientUnit = mkUnit readableIngredientUnit
-    }
-  , orderedIngredientOrder = readableIngredientOrder
-  }
-
-mkReadableStep :: Step -> ReadableStep
-mkReadableStep = ReadableStep . unStep

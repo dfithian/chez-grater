@@ -48,8 +48,6 @@ common ghc-exe-options
 library
   import: options, ghc-options
   exposed-modules:
-      Chez.Server.Combinable
-      Chez.Server.Conversion
       Chez.Server.Context
       Chez.Server.Servant
       Chez.Server.Types
@@ -62,9 +60,7 @@ library
       aeson
     , base
     , bytestring
-    , case-insensitive
     , chez-grater
-    , containers
     , exceptions
     , http-client
     , http-client-tls
@@ -75,23 +71,4 @@ library
     , servant
     , servant-server
     , text
-    , time
     , transformers
-    , unordered-containers
-
-test-suite tests
-  import: options, ghc-options
-  type: exitcode-stdio-1.0
-  main-is: main.hs
-  other-modules:
-      Chez.Server.ConversionSpec
-      Paths_chez_server
-  hs-source-dirs:
-      test
-  build-depends:
-      base
-    , chez-grater
-    , containers
-    , hspec
-    , chez-server
-    , QuickCheck

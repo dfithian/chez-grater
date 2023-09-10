@@ -3,8 +3,8 @@ module Chez.Server.Types where
 import Chez.Grater.Internal.Prelude
 
 import Chez.Grater.Internal.Json (jsonOptions)
-import Chez.Grater.Readable.Types (ReadableQuantity, ReadableUnit)
-import Chez.Grater.Types (Ingredient(..), IngredientName, RecipeName, Step)
+import Chez.Grater.Readable.Types (ReadableIngredient, ReadableStep)
+import Chez.Grater.Types (Ingredient(..), RecipeName, Step)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Aeson.TH (deriveJSON)
 
@@ -22,17 +22,6 @@ data ScrapedRecipe = ScrapedRecipe
   , scrapedRecipeIngredients :: [Ingredient]
   , scrapedRecipeSteps       :: [Step]
   } deriving (Eq, Show)
-
-data ReadableIngredient = ReadableIngredient
-  { readableIngredientName     :: IngredientName
-  , readableIngredientQuantity :: ReadableQuantity
-  , readableIngredientUnit     :: Maybe ReadableUnit
-  , readableIngredientOrder    :: Int
-  }
-  deriving (Eq, Ord, Show)
-
-newtype ReadableStep = ReadableStep { unReadableStep :: Text }
-  deriving (Eq, Ord, Show, ToJSON, FromJSON)
 
 data ParseBlobRequest = ParseBlobRequest
   { parseBlobRequestContent :: Text
@@ -56,7 +45,6 @@ data ParseLinkResponse = ParseLinkResponse
   }
   deriving (Eq, Ord, Show)
 
-deriveJSON (jsonOptions "readableIngredient") ''ReadableIngredient
 deriveJSON (jsonOptions "parseBlobRequest") ''ParseBlobRequest
 deriveJSON (jsonOptions "parseLinkRequest") ''ParseLinkRequest
 deriveJSON (jsonOptions "parseBlobResponse") ''ParseBlobResponse

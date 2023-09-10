@@ -5,11 +5,11 @@ import Chez.Grater.Internal.Prelude
 
 import Chez.Grater.Internal.CI.Orphans ()
 import Chez.Grater.Internal.Json (jsonOptions)
-import Chez.Grater.Types (Ingredient(..), IngredientName(..), Quantity(..), Unit(..))
+import Chez.Grater.Types (Ingredient(..), IngredientName(..), Quantity(..), Step(..), Unit(..))
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Aeson.TH (deriveJSON)
-import qualified Data.CaseInsensitive as CI
 import Data.Ratio (approxRational, denominator, numerator)
+import qualified Data.CaseInsensitive as CI
 
 data ReadableFraction = ReadableFraction
   { readableFractionNumerator   :: Int
@@ -32,6 +32,9 @@ data ReadableIngredient = ReadableIngredient
   , readableIngredientUnit     :: Maybe ReadableUnit
   }
   deriving (Eq, Ord, Show)
+
+newtype ReadableStep = ReadableStep { unReadableStep :: Text }
+  deriving (Eq, Ord, Show, ToJSON, FromJSON)
 
 deriveJSON (jsonOptions "readableFraction") ''ReadableFraction
 deriveJSON (jsonOptions "readableQuantity") ''ReadableQuantity
@@ -86,3 +89,6 @@ showReadableIngredient ReadableIngredient {..} =
     (Just q, Just u) -> q <> " " <> u <> " " <> showIngredientName readableIngredientName
   where
     showIngredientName = CI.original . unIngredientName
+
+mkReadableStep :: Step -> ReadableStep
+mkReadableStep = ReadableStep . unStep
