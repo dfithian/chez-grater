@@ -1,4 +1,8 @@
-# 0.1.2 (in progress)
+# 0.2.0
+
+* Open sauce the whole server
+
+# 0.1.2
 
 * Scaling for quantities. Thanks @mossprescott!
 
