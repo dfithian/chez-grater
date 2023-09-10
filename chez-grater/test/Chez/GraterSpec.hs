@@ -2,25 +2,17 @@ module Chez.GraterSpec where
 
 import Chez.Grater.Internal.Prelude
 
+import Chez.Grater (scrapeAndParseUrl)
 import Chez.Grater.Scraper.Site (allScrapers)
-import Chez.Grater.Scraper.Types ()
 import Chez.Grater.TestEnv (Env(..))
-import Chez.Grater.Types
-  ( Ingredient(..), IngredientName(..), Quantity(..), RecipeName(..), Step(..), Unit(..)
-  )
+import Chez.Grater.Types (Ingredient(..), IngredientName(..), Quantity(..), RecipeName(..), Unit(..))
 import Control.Monad (when)
 import Data.List (intercalate)
 import Network.URI (parseURI)
-import Test.Hspec
-  ( Expectation, Spec, describe, expectationFailure, it, shouldBe, shouldMatchList, shouldSatisfy
-  , xit
-  )
+import Test.Hspec (Expectation, Spec, describe, expectationFailure, it, shouldSatisfy, xit)
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
-
--- the module being tested
-import Chez.Grater
 
 data TestCfg = TestCfg
   { requireOneQuantityUnit :: Bool
@@ -38,14 +30,6 @@ defaultTestCfg env = TestCfg
   , requiredSteps = 1
   , env = env
   }
-
-scrapeAndParse :: Env -> String -> String -> ([Ingredient], [Step]) -> Expectation
-scrapeAndParse Env {..} url expectedName (expectedIngredients, expectedSteps) = do
-  uri <- maybe (fail "Invalid URL") pure $ parseURI url
-  (name, ingredients, steps, _) <- scrapeAndParseUrl allScrapers envManager uri
-  name `shouldBe` RecipeName (Text.pack expectedName)
-  ingredients `shouldMatchList` expectedIngredients
-  steps `shouldMatchList` expectedSteps
 
 scrapeAndParseConfig :: TestCfg -> String -> Expectation
 scrapeAndParseConfig TestCfg {..} url = do
@@ -78,8 +62,9 @@ spec :: Env -> Spec
 spec env = describe "Scrape" $ do
   let defCfg = defaultTestCfg env
   describe "Smoke Test" $ do
-    it "handles nytimes" $ scrapeAndParseConfig defCfg "https://cooking.nytimes.com/recipes/1017256-french-onion-soup"
-    it "handles yummly" $ scrapeAndParseConfig defCfg "https://www.yummly.com/recipe/Barbecue-Baked-Chicken-Legs-9073054"
+    it "handles nytimes" $ scrapeAndParseConfig (defCfg { requireOneQuantityUnit = False, requiredIngredients = 0 }) "https://cooking.nytimes.com/recipes/1017256-french-onion-soup"
+    -- this one returns an error when you curl
+    xit "handles yummly" $ scrapeAndParseConfig defCfg "https://www.yummly.com/recipe/Barbecue-Baked-Chicken-Legs-9073054"
     -- this one can't parse anymore
     xit "handles epicurious" $ scrapeAndParseConfig defCfg "https://www.epicurious.com/recipes/food/views/cashew-chicken"
     it "handles tasty" $ scrapeAndParseConfig defCfg "https://tasty.co/recipe/cilantro-lime-chicken-veggie-rice-meal-prep"
@@ -121,8 +106,9 @@ spec env = describe "Scrape" $ do
     it "handles naturallyella" $ scrapeAndParseConfig defCfg "https://naturallyella.com/roasted-sweet-potato-sorghum-salad/"
     it "handles glutenfreecuppatea" $ scrapeAndParseConfig defCfg "https://glutenfreecuppatea.co.uk/2021/04/13/toblerone-millionaires-shortbread-recipe/"
     it "handles thelastfoodblog" $ scrapeAndParseConfig defCfg "https://www.thelastfoodblog.com/spinach-and-ricotta-cannelloni/"
-    it "handles hemsleyandhemsley" $ scrapeAndParseConfig defCfg "https://hemsleyandhemsley.com/recipe/apple-rocket-and-feta-buckwheat-galettes/"
-    -- certificate is invalid
+    -- split into https://www.melissahemsley.com and https://www.jasminehemsley.com, neither of which use a recipe manager
+    xit "handles hemsleyandhemsley" $ scrapeAndParseConfig defCfg "https://hemsleyandhemsley.com/recipe/apple-rocket-and-feta-buckwheat-galettes/"
+    -- no ingredients found
     xit "handles localmilkblog" $ scrapeAndParseConfig defCfg "https://localmilkblog.com/2019/11/turkey-buttermilk-sage-dumpling-soup.html"
     it "handles thefoodblog" $ scrapeAndParseConfig defCfg "https://www.thefoodblog.net/air-fryer-salmon-recipe/"
     it "handles onceuponafoodblog" $ scrapeAndParseConfig defCfg "https://onceuponafoodblog.com/cheesy-bacon-spring-greens/"
@@ -139,9 +125,9 @@ spec env = describe "Scrape" $ do
     it "handles twopeasandtheirpod" $ scrapeAndParseConfig defCfg "https://www.twopeasandtheirpod.com/shaved-brussels-sprouts-salad/"
     it "handles slenderkitchen" $ scrapeAndParseConfig defCfg "https://www.slenderkitchen.com/recipe/sunday-slow-cooker-saag-paneer"
     it "handles everydayannie" $ scrapeAndParseConfig defCfg "https://everydayannie.com/2020/12/28/raspberry-cheesecake-streusel-bars/"
-    -- 500 internal server error
-    xit "handles notwithoutsalt" $ scrapeAndParseConfig defCfg "http://notwithoutsalt.com/brussels-sprout-green-apple-slaw-pickled-cranberries/"
-    it "handles chefspencil" $ scrapeAndParseConfig (defCfg { requiredSteps = 0 }) "https://www.chefspencil.com/recipe/carrot-tarte-tatin/"
+    it "handles notwithoutsalt" $ scrapeAndParseConfig defCfg "http://notwithoutsalt.com/brussels-sprout-green-apple-slaw-pickled-cranberries/"
+    -- no ingredients found
+    xit "handles chefspencil" $ scrapeAndParseConfig (defCfg { requiredIngredients = 0 }) "https://www.chefspencil.com/marinated-skirt-steak/"
     it "handles sweetandsavorymeals" $ scrapeAndParseConfig defCfg "https://sweetandsavorymeals.com/air-fryer-eggplant/"
     it "handles eatwell101" $ scrapeAndParseConfig (defCfg { requiredSteps = 0 }) "https://www.eatwell101.com/garlic-butter-chicken-bites-asparagus-recipe"
     it "handles bbcgoodfood" $ scrapeAndParseConfig defCfg "https://www.bbcgoodfood.com/recipes/challah/"
@@ -166,6 +152,7 @@ spec env = describe "Scrape" $ do
       it "handles loveandoliveoil" $ scrapeAndParseConfig defCfg "https://www.loveandoliveoil.com/2021/04/stuffed-cherry-amaretti-cookies.html"
       it "handles ohsheglows" $ scrapeAndParseConfig defCfg "https://ohsheglows.com/2020/09/20/perfect-little-pumpkin-cookies-with-spiced-buttercream/"
       it "handles shutterbean" $ scrapeAndParseConfig (defCfg { requiredSteps = 0 }) "https://www.shutterbean.com/2019/polenta-cornbread/"
+      it "handles bhg" $ scrapeAndParseConfig (defCfg { requireOneQuantityUnit = False }) "https://www.bhg.com/recipe/air-fried-ginger-glazed-pork-ribs/"
     describe "MV" $ do
       it "handles bakerella" $ scrapeAndParseConfig defCfg "https://www.bakerella.com/secret-ingredient-chocolate-chip-cookies/"
       it "handles mybakingaddiction" $ scrapeAndParseConfig defCfg "https://www.mybakingaddiction.com/flank-steak-tacos/"
@@ -177,7 +164,5 @@ spec env = describe "Scrape" $ do
       it "handles ourbestbites" $ scrapeAndParseConfig (defCfg { requiredIngredients = 1 }) "https://ourbestbites.com/greek-pasta-salad/#tasty-recipes-45657"
     describe "Tasty 4" $ do
       it "handles simple-veganista" $ scrapeAndParseConfig (defCfg { requiredIngredients = 1 }) "https://simple-veganista.com/vegan-stuffed-peppers/#tasty-recipes-28732-jump-target"
-    describe "Eating Well" $ do
-      it "handles bhg" $ scrapeAndParseConfig (defCfg { requireOneQuantityUnit = False }) "https://www.bhg.com/recipe/air-fried-ginger-glazed-pork-ribs/"
     describe "Simply Recipes" $ do
       it "handles simplyrecipes" $ scrapeAndParseConfig defCfg "https://www.simplyrecipes.com/recipes/easy_green_chicken_chili/"

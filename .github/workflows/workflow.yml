@@ -1,5 +1,7 @@
 on:
   push: {}
+  schedule:
+    - cron: "0 5 * * *"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,13 +12,14 @@ jobs:
           path: |
             ~/.cabal/store
             dist-newstyle
-          key: cabal-${{ hashFiles('chez-grater.cabal') }}
+          key: cabal-${{ hashFiles('chez-grater/chez-grater.cabal') }}-${{ hashFiles('chez-server/chez-server.cabal') }}
           restore-keys: |
-            cabal-${{ hashFiles('chez-grater.cabal') }}
+            cabal-${{ hashFiles('chez-grater/chez-grater.cabal') }}-${{ hashFiles('chez-server/chez-server.cabal' )}}
+            cabal-${{ hashFiles('chez-grater/chez-grater.cabal') }}
             cabal-
       - uses: haskell/actions/setup@v1
         with:
           ghc-version: '8.10.7'
           enable-stack: false
       - run: cabal v2-update
-      - run: cabal v2-test --test-log /dev/stdout --test-show-details always
+      - run: cabal v2-test all --test-log /dev/stdout --test-show-details always

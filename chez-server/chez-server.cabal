@@ -1,0 +1,74 @@
+cabal-version: 3.0
+name:          chez-server
+version:       0.2.0
+maintainer:    Dan Fithian
+copyright:     2021 Dan Fithian
+build-type:    Simple
+
+common options
+  default-extensions:
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveDataTypeable
+      DeriveGeneric
+      DerivingStrategies
+      DerivingVia
+      EmptyDataDecls
+      FlexibleContexts
+      FlexibleInstances
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      MultiParamTypeClasses
+      MultiWayIf
+      NamedFieldPuns
+      NoImplicitPrelude
+      NoMonomorphismRestriction
+      OverloadedStrings
+      QuasiQuotes
+      RankNTypes
+      RecordWildCards
+      ScopedTypeVariables
+      StandaloneDeriving
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+      ViewPatterns
+  default-language: Haskell2010
+
+common ghc-options
+  ghc-options: -Wall -Wunused-packages -fwarn-tabs -fwarn-redundant-constraints -Wincomplete-uni-patterns -eventlog -O0
+
+common ghc-exe-options
+  ghc-options: -Wall -Wunused-packages -fwarn-tabs -fwarn-redundant-constraints -Wincomplete-uni-patterns -eventlog -O2
+
+library
+  import: options, ghc-options
+  exposed-modules:
+      Chez.Server.Context
+      Chez.Server.Servant
+      Chez.Server.Types
+      Chez.Server
+  other-modules:
+      Paths_chez_server
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , base
+    , bytestring
+    , chez-grater
+    , exceptions
+    , http-client
+    , http-client-tls
+    , http-types
+    , monad-logger
+    , mtl
+    , network-uri
+    , servant
+    , servant-server
+    , text
+    , transformers
