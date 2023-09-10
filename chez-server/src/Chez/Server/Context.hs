@@ -7,7 +7,7 @@ import Control.Monad.Catch (MonadCatch, catch, throwM)
 import Control.Monad.Except (ExceptT, MonadError, mapExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Logger
-  ( Loc, LogLevel, LogSource, LogStr, LoggingT, MonadLoggerIO, logError, runStdoutLoggingT
+  ( Loc, LogLevel, LogSource, LogStr, LoggingT, MonadLogger, logError, runStdoutLoggingT
   )
 import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
 import Data.ByteString (ByteString)
@@ -16,7 +16,7 @@ import Network.HTTP.Client.TLS (newTlsManagerWith, tlsManagerSettings)
 import Network.HTTP.Types (hUserAgent)
 import Servant.Server (Handler(Handler), ServerError)
 
-type ChezM m = (MonadCatch m, MonadError ServerError m, MonadIO m, MonadLoggerIO m, MonadReader ChezContext m)
+type ChezM m = (MonadCatch m, MonadError ServerError m, MonadIO m, MonadLogger m, MonadReader ChezContext m)
 
 type LogFunc = Loc -> LogSource -> LogLevel -> LogStr -> IO ()
 
@@ -26,7 +26,7 @@ data ChezContext = ChezContext
   { chezManager :: Manager
   }
 
-logErrors :: (MonadCatch m, MonadLoggerIO m) => m a -> m a
+logErrors :: (MonadCatch m, MonadIO m) => m a -> m a
 logErrors ma = do
   ma `catch` \(se :: SomeException) -> do
     runStdoutLoggingT ($logError (tshow se))
