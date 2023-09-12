@@ -11,12 +11,6 @@ import Data.Aeson.TH (deriveJSON)
 newtype RecipeLink = RecipeLink { unRecipeLink :: Text }
   deriving (Eq, Ord, Show, FromJSON, ToJSON)
 
-data OrderedIngredient = OrderedIngredient
-  { orderedIngredientIngredient :: Ingredient
-  , orderedIngredientOrder      :: Int
-  }
-  deriving (Eq, Ord, Show)
-
 data ScrapedRecipe = ScrapedRecipe
   { scrapedRecipeName        :: RecipeName
   , scrapedRecipeIngredients :: [Ingredient]
