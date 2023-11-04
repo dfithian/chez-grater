@@ -1,4 +1,3 @@
 tests: True
 packages:
   chez-grater
-  chez-server

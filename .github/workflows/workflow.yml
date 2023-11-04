@@ -12,9 +12,8 @@ jobs:
           path: |
             ~/.cabal/store
             dist-newstyle
-          key: cabal-${{ hashFiles('chez-grater/chez-grater.cabal') }}-${{ hashFiles('chez-server/chez-server.cabal') }}
+          key: cabal-${{ hashFiles('chez-grater/chez-grater.cabal') }}
           restore-keys: |
-            cabal-${{ hashFiles('chez-grater/chez-grater.cabal') }}-${{ hashFiles('chez-server/chez-server.cabal' )}}
             cabal-${{ hashFiles('chez-grater/chez-grater.cabal') }}
             cabal-
       - uses: haskell/actions/setup@v1
