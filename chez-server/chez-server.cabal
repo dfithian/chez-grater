@@ -63,8 +63,6 @@ library
     , chez-grater
     , exceptions
     , http-client
-    , http-client-tls
-    , http-types
     , monad-logger
     , mtl
     , network-uri

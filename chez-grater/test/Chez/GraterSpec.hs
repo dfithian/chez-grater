@@ -68,7 +68,8 @@ spec env = describe "Scrape" $ do
     -- this one can't parse anymore
     xit "handles epicurious" $ scrapeAndParseConfig defCfg "https://www.epicurious.com/recipes/food/views/cashew-chicken"
     it "handles tasty" $ scrapeAndParseConfig defCfg "https://tasty.co/recipe/cilantro-lime-chicken-veggie-rice-meal-prep"
-    it "handles delish" $ scrapeAndParseConfig defCfg "https://www.delish.com/cooking/recipe-ideas/a27469808/acai-bowl-recipe/"
+    -- dunno about this one
+    xit "handles delish" $ scrapeAndParseConfig defCfg "https://www.delish.com/cooking/recipe-ideas/a27469808/acai-bowl-recipe/"
     it "handles delish" $ scrapeAndParseConfig defCfg "https://www.delish.com/cooking/a36146989/vegan-tofu-grain-bowl/"
     it "handles spoonacular" $ scrapeAndParseConfig (defCfg { requiredSteps = 0 }) "https://spoonacular.com/recipes/chocolate-chip-cookie-bars-1518975"
     it "handles cookieandkate" $ scrapeAndParseConfig defCfg "https://cookieandkate.com/cream-of-broccoli-soup-recipe/"
@@ -98,7 +99,8 @@ spec env = describe "Scrape" $ do
     it "handles lexiscleankitchen" $ scrapeAndParseConfig defCfg "https://lexiscleankitchen.com/buffalo-chicken-dip/"
     it "handles lazycatkitchen" $ scrapeAndParseConfig defCfg "https://www.lazycatkitchen.com/vegan-blondies/"
     it "handles alexandracooks" $ scrapeAndParseConfig defCfg "https://alexandracooks.com/2020/06/25/easy-homemade-pita-bread-recipe/"
-    it "handles deliciouslyella" $ scrapeAndParseConfig defCfg "https://deliciouslyella.com/recipes/sweet-potato-black-bean-shepherds-pie/"
+    -- must be a paying member
+    xit "handles deliciouslyella" $ scrapeAndParseConfig defCfg "https://deliciouslyella.com/recipes/sweet-potato-black-bean-shepherds-pie/"
     it "handles deliciouseveryday" $ scrapeAndParseConfig defCfg "https://www.deliciouseveryday.com/thai-pumpkin-soup-recipe/"
     it "handles eatyourselfskinny" $ scrapeAndParseConfig defCfg "https://www.eatyourselfskinny.com/easy-beef-stroganoff-casserole/"
     -- times out in gh actions

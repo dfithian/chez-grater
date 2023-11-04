@@ -2,6 +2,7 @@ module Chez.Server.Context where
 
 import Chez.Grater.Internal.Prelude
 
+import Chez.Grater.Manager (createManager)
 import Control.Exception (SomeException)
 import Control.Monad.Catch (MonadCatch, catch, throwM)
 import Control.Monad.Except (ExceptT, MonadError, mapExceptT)
@@ -11,9 +12,7 @@ import Control.Monad.Logger
   )
 import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
 import Data.ByteString (ByteString)
-import Network.HTTP.Client (Manager, managerModifyRequest, requestHeaders)
-import Network.HTTP.Client.TLS (newTlsManagerWith, tlsManagerSettings)
-import Network.HTTP.Types (hUserAgent)
+import Network.HTTP.Client (Manager)
 import Servant.Server (Handler(Handler), ServerError)
 
 type ChezM m = (MonadCatch m, MonadError ServerError m, MonadIO m, MonadLogger m, MonadReader ChezContext m)
@@ -37,15 +36,6 @@ runChezServer ctx ma = Handler (mapExceptT (\ma' -> runStdoutLoggingT (runReader
 
 userAgent :: ByteString
 userAgent = "Simulated"
-
-createManager :: IO Manager
-createManager =
-  newTlsManagerWith tlsManagerSettings
-    { managerModifyRequest = \req -> do
-        pure req
-          { requestHeaders = [(hUserAgent, userAgent)] <> requestHeaders req
-          }
-    }
 
 chezContext :: IO ChezContext
 chezContext = ChezContext

@@ -36,7 +36,7 @@ ingredientScrapers = HashMap.fromList
   , ("pinchofyum.com", tastyI2)
   , ("alexandracooks.com", tastyI3)
   , ("brownedbutterblondie.com", tastyI3)
-  , ("naturallyella.com", tastyI4)
+  , ("naturallyella.com", tastyI3)
 
   , ("foodnetwork.com", foodNetworkI)
 
