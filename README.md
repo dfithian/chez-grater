@@ -1,3 +1,5 @@
+> :warning: **This project has moved to https://github.com/dfithian/mo-nomz.**
+
 # Chez Grater
 
 ![chez-grater](https://github.com/dfithian/chez-grater/actions/workflows/workflow.yml/badge.svg)
